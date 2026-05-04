@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Reparto de Agua</title>
+  <meta name="theme-color" content="#0ea5e9">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Reparto Agua">
+  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%20%22Reparto%20de%20Agua%22%2C%20%22short_name%22%3A%20%22Reparto%20Agua%22%2C%20%22description%22%3A%20%22Gestion%20de%20clientes%20y%20entregas%22%2C%20%22start_url%22%3A%20%22.%22%2C%20%22display%22%3A%20%22standalone%22%2C%20%22background_color%22%3A%20%22%230ea5e9%22%2C%20%22theme_color%22%3A%20%22%230ea5e9%22%2C%20%22orientation%22%3A%20%22portrait%22%2C%20%22icons%22%3A%20%5B%7B%22src%22%3A%20%22data%3Aimage/svg%2Bxml%2C%253Csvg%2520xmlns%253D%2522http%253A//www.w3.org/2000/svg%2522%2520viewBox%253D%25220%25200%2520512%2520512%2522%253E%253Crect%2520width%253D%2522512%2522%2520height%253D%2522512%2522%2520rx%253D%2522100%2522%2520fill%253D%2522%25230ea5e9%2522/%253E%253Cpath%2520d%253D%2522M256%252090%2520C256%252090%2520145%2520225%2520145%2520305%2520C145%2520368%2520194%2520418%2520256%2520418%2520C318%2520418%2520367%2520368%2520367%2520305%2520C367%2520225%2520256%252090%2520256%252090Z%2522%2520fill%253D%2522white%2522/%253E%253Cellipse%2520cx%253D%2522220%2522%2520cy%253D%2522310%2522%2520rx%253D%252230%2522%2520ry%253D%252218%2522%2520fill%253D%2522%2523bae6fd%2522%2520opacity%253D%25220.6%2522/%253E%253C/svg%253E%22%2C%20%22sizes%22%3A%20%22512x512%22%2C%20%22type%22%3A%20%22image/svg%2Bxml%22%2C%20%22purpose%22%3A%20%22any%20maskable%22%7D%5D%7D">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20512%20512%22%3E%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22100%22%20fill%3D%22%230ea5e9%22/%3E%3Cpath%20d%3D%22M256%2090%20C256%2090%20145%20225%20145%20305%20C145%20368%20194%20418%20256%20418%20C318%20418%20367%20368%20367%20305%20C367%20225%20256%2090%20256%2090Z%22%20fill%3D%22white%22/%3E%3Cellipse%20cx%3D%22220%22%20cy%3D%22310%22%20rx%3D%2230%22%20ry%3D%2218%22%20fill%3D%22%23bae6fd%22%20opacity%3D%220.6%22/%3E%3C/svg%3E">
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <style>
+    :root{--primary:#0ea5e9;--primary-dark:#0284c7;--primary-light:#e0f2fe;--success:#22c55e;--danger:#ef4444;--warning:#f59e0b;--bg:#f0f9ff;--card:#fff;--text:#1e293b;--text-muted:#64748b;--border:#e2e8f0;--radius:12px;--disp:#7c3aed;--disp-light:#ede9fe;}
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;}
+    .view{display:none;min-height:100vh;}.view.active{display:block;}
+    .header{background:var(--primary);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+    .header h1{font-size:18px;font-weight:700;flex:1;}
+    .back-btn{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px 8px 4px 0;line-height:1;}
+    .search-bar{background:var(--primary-dark);padding:10px 16px 12px;}
+    .search-input{width:100%;padding:10px 14px 10px 38px;border-radius:10px;border:none;font-size:15px;background:rgba(255,255,255,.18);color:#fff;}
+    .search-input::placeholder{color:rgba(255,255,255,.65);}
+    .search-input:focus{outline:none;background:rgba(255,255,255,.28);}
+    .search-wrap{position:relative;}
+    .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;}
+    .list-container{padding:12px;display:flex;flex-direction:column;gap:8px;padding-bottom:90px;}
+    .hist-date-bar{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--primary-dark);border-bottom:1px solid var(--border);}
+    .hist-nav-btn{width:34px;height:34px;border-radius:50%;border:none;background:rgba(255,255,255,.18);color:#fff;font-size:14px;font-weight:700;cursor:pointer;flex-shrink:0;}
+    .hist-nav-btn:active{background:rgba(255,255,255,.3);}
+    .hist-date-input{flex:1;padding:9px 12px;border-radius:10px;border:none;font-size:14px;background:rgba(255,255,255,.95);color:var(--text);font-weight:600;min-width:0;}
+    .hist-today-btn{padding:8px 14px;border-radius:10px;border:none;background:#fff;color:var(--primary-dark);font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;}
+    .hist-today-btn:active{opacity:.7;}
+    .chips-bar{padding:10px 12px;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;background:var(--bg);border-bottom:1px solid var(--border);}
+    .chips-bar::-webkit-scrollbar{display:none;}
+    .chip{padding:7px 13px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent;transition:all .15s;}
+    .chip.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+    .chip-sort.active{background:var(--text);border-color:var(--text);}
+    .chip-sep{width:1px;height:22px;background:var(--border);margin:0 2px;flex-shrink:0;align-self:center;}
+    .tag-today{background:#fef3c7;color:#92400e;}
+    .tag-new{background:#dbeafe;color:#1d4ed8;}
+    .client-card{background:var(--card);border-radius:var(--radius);padding:12px 14px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;align-items:center;gap:10px;transition:transform .1s;-webkit-user-select:none;}
+    .client-card:active{transform:scale(.98);}
+    .avatar{width:42px;height:42px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;flex-shrink:0;}
+    .avatar.disp{background:var(--disp);}
+    .client-info{flex:1;min-width:0;}
+    .client-name-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+    .client-name{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .client-sub{font-size:12px;color:var(--text-muted);margin-top:2px;}
+    .client-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+    .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;}
+    .tag-debt{background:#fee2e2;color:#dc2626;}.tag-ok{background:#dcfce7;color:#16a34a;}
+    .tag-credit{background:#ede9fe;color:#7c3aed;font-weight:700;}
+    .tag-stock{background:var(--primary-light);color:#0369a1;}.tag-disp{background:var(--disp-light);color:var(--disp);}
+    /* Timer badge */
+    .timer-badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;cursor:pointer;-webkit-user-select:none;white-space:nowrap;transition:opacity .15s;}
+    .timer-badge:active{opacity:.7;}
+    .timer-ok{background:#dcfce7;color:#15803d;}
+    .timer-warn{background:#fef9c3;color:#92400e;}
+    .timer-urgent{background:#fee2e2;color:#dc2626;}
+    .timer-overdue{background:#dc2626;color:#fff;}
+    .timer-none{background:#f1f5f9;color:var(--text-muted);}
+    .fab{position:fixed;bottom:80px;right:max(16px,calc((100vw - 480px)/2 + 16px));width:60px;height:60px;border-radius:50%;background:var(--primary);color:#fff;border:none;font-size:30px;cursor:pointer;box-shadow:0 6px 20px rgba(14,165,233,.55);display:flex;align-items:center;justify-content:center;z-index:50;}
+    .detail-hero{background:linear-gradient(135deg,var(--primary) 0%,#0369a1 100%);color:#fff;padding:20px 16px 18px;}
+    .detail-hero.disp-hero{background:linear-gradient(135deg,var(--disp) 0%,#5b21b6 100%);}
+    .detail-avatar{width:62px;height:62px;border-radius:50%;background:rgba(255,255,255,.22);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;margin-bottom:10px;}
+    .detail-name{font-size:22px;font-weight:800;}
+    .detail-info{font-size:13px;opacity:.82;margin-top:3px;}
+    .disp-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.2);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:700;margin-top:8px;}
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px;}
+    .stat-box{background:var(--card);border-radius:var(--radius);padding:14px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.07);}
+    .stat-val{font-size:26px;font-weight:800;line-height:1;}
+    .stat-lbl{font-size:11px;color:var(--text-muted);margin-top:5px;text-transform:uppercase;letter-spacing:.5px;}
+    .stat-debt .stat-val{color:#dc2626;}.stat-stock .stat-val{color:#0369a1;}.stat-total .stat-val{color:#16a34a;}
+    .disp-month-card{background:var(--disp-light);border-radius:var(--radius);padding:14px 16px;margin:0 14px 4px;border-left:4px solid var(--disp);}
+    .disp-month-title{font-size:11px;font-weight:700;color:var(--disp);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+    .disp-month-bar-bg{background:rgba(124,58,237,.15);border-radius:8px;height:10px;overflow:hidden;margin-bottom:6px;}
+    .disp-month-bar{background:var(--disp);height:10px;border-radius:8px;transition:width .4s;}
+    .disp-month-bar.over{background:var(--danger);}
+    .disp-month-stats{display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);}
+    .disp-month-stats strong{color:var(--text);}
+    .disp-saldo-row{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:10px;padding:12px 14px;margin:10px 0 8px;border:1.5px solid var(--border);}
+    .disp-saldo-debt{border-color:#fecaca;background:#fff5f5;}
+    .disp-saldo-credit{border-color:#c4b5fd;background:#f5f3ff;}
+    .disp-saldo-ok{border-color:#bbf7d0;background:#f0fdf4;}
+    .disp-saldo-val{font-size:26px;font-weight:800;margin-top:2px;line-height:1;}
+    .disp-saldo-debt-val{color:#dc2626;}
+    .disp-saldo-credit-val{color:var(--disp);}
+    .disp-saldo-ok-val{color:#16a34a;}
+    .disp-month-breakdown{display:flex;flex-direction:column;gap:4px;margin-top:6px;}
+    .disp-month-breakdown>div{display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);}
+    .disp-month-breakdown strong{color:var(--text);font-weight:700;}
+    /* Timer detail card */
+    .timer-detail-card{border-radius:var(--radius);padding:14px 16px;margin:0 14px 4px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+    .timer-detail-card.ok{background:#dcfce7;border-left:4px solid #16a34a;}
+    .timer-detail-card.warn{background:#fef9c3;border-left:4px solid #f59e0b;}
+    .timer-detail-card.urgent{background:#fee2e2;border-left:4px solid var(--danger);}
+    .timer-detail-card.overdue{background:#fee2e2;border-left:4px solid #991b1b;}
+    .timer-detail-card.none{background:#f1f5f9;border-left:4px solid var(--border);}
+    .timer-big{font-size:32px;font-weight:800;line-height:1;}
+    .timer-big.ok{color:#15803d;}.timer-big.warn{color:#92400e;}.timer-big.urgent,.timer-big.overdue{color:#dc2626;}.timer-big.none{color:var(--text-muted);}
+    .timer-detail-info{flex:1;}
+    .timer-detail-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+    .timer-detail-label.ok{color:#15803d;}.timer-detail-label.warn{color:#92400e;}.timer-detail-label.urgent,.timer-detail-label.overdue{color:#dc2626;}.timer-detail-label.none{color:var(--text-muted);}
+    .timer-detail-sub{font-size:12px;color:var(--text-muted);}
+    .timer-edit-btn{background:rgba(0,0,0,.08);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;}
+    .action-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px 14px;}
+    .action-row.three{grid-template-columns:1fr 1fr 1fr;}
+    .act-btn{padding:13px 8px;border-radius:var(--radius);border:none;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:opacity .15s;}
+    .act-btn:active{opacity:.8;}
+    .btn-blue{background:var(--primary);color:#fff;}.btn-green{background:var(--success);color:#fff;}
+    .btn-gray{background:var(--border);color:var(--text);}.btn-red{background:#fee2e2;color:var(--danger);}
+    .btn-purple{background:var(--disp);color:#fff;}
+    .sec-title{padding:8px 14px 4px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;background:var(--bg);}
+    .history-container{padding:0 14px 90px;display:flex;flex-direction:column;gap:7px;}
+    .hist-item{background:var(--card);border-radius:10px;padding:12px 14px;box-shadow:0 1px 2px rgba(0,0,0,.06);display:flex;align-items:flex-start;gap:10px;}
+    .hist-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+    .hist-icon.delivery{background:var(--primary-light);}.hist-icon.payment{background:#dcfce7;}.hist-icon.cuota{background:var(--disp-light);}
+    .hist-body{flex:1;min-width:0;}
+    .hist-type{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;}
+    .hist-type.delivery{color:var(--primary);}.hist-type.payment{color:var(--success);}.hist-type.cuota{color:var(--disp);}
+    .hist-desc{font-size:13px;color:var(--text);margin-top:2px;}
+    .hist-date{font-size:11px;color:var(--text-muted);margin-top:2px;}
+    .hist-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+    .hist-amount{font-size:15px;font-weight:800;}
+    .hist-amount.charge{color:#dc2626;}.hist-amount.paid{color:var(--success);}
+    .del-btn{background:none;border:none;color:#cbd5e1;font-size:14px;cursor:pointer;padding:2px 4px;}
+    .del-btn:active{color:var(--danger);}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;}
+    .overlay.open{opacity:1;pointer-events:all;}
+    .modal{background:var(--card);border-radius:22px 22px 0 0;padding:22px 20px 28px;width:100%;max-width:480px;margin:0 auto;max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
+    .overlay.open .modal{transform:translateY(0);}
+    .modal-drag{width:40px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 18px;}
+    .modal-title{font-size:18px;font-weight:800;margin-bottom:20px;}
+    .form-group{margin-bottom:15px;}
+    .form-lbl{font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.4px;}
+    .form-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;transition:border-color .2s;background:#fff;-webkit-appearance:none;}
+    .form-input:focus{outline:none;border-color:var(--primary);}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .info-box{background:var(--disp-light);border:1.5px solid #c4b5fd;border-radius:10px;padding:12px 14px;margin-bottom:15px;font-size:13px;}
+    .info-box strong{display:block;font-weight:700;color:var(--disp);margin-bottom:4px;}
+    .info-box .quota-bar-bg{background:rgba(124,58,237,.15);border-radius:6px;height:8px;overflow:hidden;margin:6px 0 4px;}
+    .info-box .quota-bar{background:var(--disp);height:8px;border-radius:6px;}
+    .charge-preview{background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:12px 14px;margin-bottom:15px;}
+    .charge-preview-label{font-size:12px;color:#15803d;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+    .charge-preview-amount{font-size:24px;font-weight:800;color:#15803d;}
+    .charge-preview-detail{font-size:12px;color:var(--text-muted);margin-top:3px;}
+    .confirm-area{background:#fffbeb;border:1.5px solid #fde68a;border-radius:10px;padding:12px;font-size:13px;margin-bottom:16px;}
+    .confirm-area strong{display:block;font-size:20px;color:#92400e;margin-top:4px;}
+    .total-breakdown{font-size:12px;color:var(--text-muted);margin-top:4px;}
+    .btn-submit{width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-top:6px;}
+    .btn-submit.green{background:var(--success);}.btn-submit.purple{background:var(--disp);}
+    .btn-cancel{width:100%;padding:12px;background:var(--border);color:var(--text);border:none;border-radius:12px;font-size:15px;cursor:pointer;margin-top:8px;}
+    .btn-delete-inline{width:100%;padding:12px;background:#fff;color:var(--danger);border:1.5px solid #fecaca;border-radius:12px;font-size:14px;cursor:pointer;margin-top:16px;font-weight:700;}
+    .btn-delete-inline:active{background:#fee2e2;}
+    .disp-sel{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:15px;}
+    .disp-opt{border:2px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .15s;}
+    .disp-opt.selected{border-color:var(--disp);background:var(--disp-light);}
+    .disp-opt .do-icon{font-size:22px;}
+    .disp-opt .do-label{font-size:11px;font-weight:700;margin-top:4px;color:var(--text-muted);}
+    .disp-opt.selected .do-label{color:var(--disp);}
+    .day-sel{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;}
+    .day-opt{border:2px solid var(--border);border-radius:10px;padding:10px 4px;text-align:center;cursor:pointer;transition:all .15s;font-size:12px;font-weight:700;color:var(--text-muted);}
+    .day-opt.selected{border-color:var(--primary);background:var(--primary-light);color:var(--primary-dark);}
+    .day-tag{background:#fef3c7;color:#92400e;font-weight:700;}
+    .empty{text-align:center;padding:56px 24px;color:var(--text-muted);}
+    .empty-icon{font-size:52px;margin-bottom:14px;}.empty-text{font-size:15px;line-height:1.6;}
+    .resumen-body{padding:14px;padding-bottom:90px;}
+    /* Reporte del día */
+    .day-report{background:linear-gradient(135deg,var(--primary) 0%,#0369a1 100%);color:#fff;border-radius:var(--radius);padding:18px;margin-bottom:12px;box-shadow:0 4px 16px rgba(14,165,233,.28);}
+    .day-report-date{font-size:11px;font-weight:700;opacity:.8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;}
+    .day-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+    .day-stat{background:rgba(255,255,255,.15);border-radius:10px;padding:11px 10px;text-align:center;}
+    .day-stat.wide{grid-column:span 2;}
+    .day-stat-val{font-size:26px;font-weight:800;line-height:1;}
+    .day-stat-lbl{font-size:10px;opacity:.85;margin-top:4px;text-transform:uppercase;letter-spacing:.4px;}
+    .btn-share{width:100%;padding:11px;background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.35);border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+    .btn-share:active{opacity:.75;}
+    /* Secciones colapsables */
+    .section-card{background:var(--card);border-radius:var(--radius);box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:10px;overflow:hidden;}
+    .section-hdr{display:flex;justify-content:space-between;align-items:center;padding:15px 16px;cursor:pointer;-webkit-user-select:none;}
+    .section-hdr-left{flex:1;min-width:0;}
+    .section-lbl{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+    .section-val{font-size:22px;font-weight:800;}
+    .section-val.red{color:#dc2626;}.section-val.green{color:#16a34a;}.section-val.blue{color:#0369a1;}.section-val.purple{color:var(--disp);}
+    .section-sub{font-size:12px;color:var(--text-muted);margin-top:1px;}
+    .section-chev{font-size:13px;color:var(--text-muted);margin-left:10px;transition:transform .2s;flex-shrink:0;}
+    .section-chev.open{transform:rotate(180deg);}
+    .section-body{border-top:1px solid var(--border);padding:12px 16px;display:none;}
+    .section-body.open{display:block;}
+    .deudor-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:14px;cursor:pointer;}
+    .deudor-row:last-child{border-bottom:none;}
+    .deudor-name{font-weight:600;}.deudor-debt{font-weight:700;color:#dc2626;}
+    /* Inventario */
+    .stock-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;}
+    .stock-row+.stock-row{border-top:1px solid var(--border);}
+    .stock-counter{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+    .stock-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border);background:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--text);flex-shrink:0;}
+    .stock-btn.red{border-color:#fecaca;color:#dc2626;}
+    .stock-num{font-size:24px;font-weight:800;min-width:32px;text-align:center;}
+    /* Truck load card (Historial) */
+    .truck-card{background:#fffbeb;border:1px solid #fde68a;border-radius:14px;margin:0 0 12px;padding:14px 16px;box-shadow:var(--shadow);}
+    .truck-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+    .truck-info{display:flex;flex-direction:column;gap:2px;}
+    .truck-title{font-size:14px;font-weight:700;color:#78350f;}
+    .truck-sub{font-size:11px;color:#92400e;}
+    .truck-counter{display:flex;align-items:center;gap:10px;}
+    .truck-num{font-size:30px;font-weight:800;min-width:44px;text-align:center;color:#b45309;}
+    .truck-num.neg{color:#dc2626;}
+    .truck-btn{width:36px;height:36px;border-radius:50%;border:1.5px solid #fde68a;background:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;color:#b45309;flex-shrink:0;}
+    .truck-btn:active{background:#fef3c7;}
+    .truck-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;padding-top:12px;border-top:1px dashed #fde68a;}
+    .truck-stat{text-align:center;}
+    .truck-stat-val{font-size:18px;font-weight:800;color:#78350f;}
+    .truck-stat-lbl{font-size:10px;color:#92400e;text-transform:uppercase;letter-spacing:.4px;font-weight:600;margin-top:2px;}
+    /* FAB mejorado */
+    .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--card);border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr 1fr 1fr;z-index:100;}
+    .nav-item{display:flex;flex-direction:column;align-items:center;padding:10px 0 12px;cursor:pointer;border:none;background:none;font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;gap:3px;transition:color .15s;}
+    .nav-item .nav-icon{font-size:22px;}
+    .nav-item.active{color:var(--primary);}
+    .toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 22px;border-radius:22px;font-size:14px;font-weight:500;z-index:500;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
+    .toast.show{opacity:1;}
+    .confirm-dialog{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s;}
+    .confirm-dialog.open{opacity:1;pointer-events:all;}
+    .confirm-box{background:#fff;border-radius:18px;padding:24px 20px;width:100%;max-width:320px;text-align:center;}
+    .confirm-box h3{font-size:17px;font-weight:700;margin-bottom:8px;}
+    .confirm-box p{font-size:14px;color:var(--text-muted);margin-bottom:20px;line-height:1.5;}
+    .confirm-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .btn-no{padding:12px;background:var(--border);color:var(--text);border:none;border-radius:10px;font-size:15px;cursor:pointer;font-weight:600;}
+    .btn-yes{padding:12px;background:var(--danger);color:#fff;border:none;border-radius:10px;font-size:15px;cursor:pointer;font-weight:600;}
+    #view-detail{overflow-y:auto;}.detail-scroll{padding-bottom:20px;}
+    /* Ruta del día */
+    .ruta-card{background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;align-items:center;gap:12px;}
+    .ruta-num{width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;}
+    .ruta-dist{font-size:12px;color:var(--text-muted);margin-top:2px;}
+    .ruta-addr{font-size:12px;color:var(--text-muted);margin-top:2px;}
+    .ruta-header{padding:14px 14px 8px;}
+    .btn-maps{width:100%;padding:14px;background:#16a34a;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;}
+    .btn-maps:active{opacity:.85;}
+    .btn-regeo{background:var(--primary-light);color:var(--primary-dark);border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;}
+    /* Dropdown de dirección custom */
+    .address-dd{background:#fff;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.14);margin-top:4px;overflow:hidden;display:none;}
+    .address-dd-item{padding:12px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--border);line-height:1.4;}
+    .address-dd-item:last-child{border-bottom:none;}
+    .address-dd-item:active{background:var(--primary-light);}
+    .install-banner{position:fixed;bottom:68px;left:50%;transform:translateX(-50%);width:calc(100% - 24px);max-width:456px;background:#1e293b;color:#fff;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;z-index:150;box-shadow:0 4px 20px rgba(0,0,0,.3);transition:opacity .3s,transform .3s;}
+    .install-banner.hidden{opacity:0;pointer-events:none;transform:translateX(-50%) translateY(20px);}
+    .install-banner-text{flex:1;font-size:13px;line-height:1.4;}
+    .install-banner-text strong{display:block;font-size:14px;margin-bottom:2px;}
+    .install-btn{background:var(--primary);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;}
+    .install-dismiss{background:none;border:none;color:#94a3b8;font-size:18px;cursor:pointer;padding:4px;flex-shrink:0;}
+    /* Login screen */
+    .login-view{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:linear-gradient(135deg,var(--primary) 0%,#0369a1 100%);color:#fff;}
+    .login-card{width:100%;max-width:360px;background:#fff;border-radius:18px;padding:28px 22px;color:var(--text);box-shadow:0 12px 40px rgba(0,0,0,.25);}
+    .login-logo{font-size:46px;text-align:center;margin-bottom:8px;}
+    .login-title{font-size:22px;font-weight:800;text-align:center;margin-bottom:4px;}
+    .login-sub{font-size:13px;color:var(--text-muted);text-align:center;margin-bottom:20px;}
+    .login-input{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;margin-bottom:10px;background:#fff;color:var(--text);}
+    .login-input:focus{outline:none;border-color:var(--primary);}
+    .login-btn{width:100%;padding:13px;border-radius:10px;border:none;background:var(--primary);color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;}
+    .login-btn:active{background:var(--primary-dark);}
+    .login-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .login-error{background:#fee2e2;color:#dc2626;padding:10px;border-radius:8px;font-size:13px;margin-bottom:10px;text-align:center;display:none;}
+    .login-error.show{display:block;}
+    /* Logout button en el header */
+    .logout-btn{background:rgba(255,255,255,.18);border:none;color:#fff;font-size:13px;font-weight:600;padding:6px 11px;border-radius:8px;cursor:pointer;}
+    .logout-btn:active{background:rgba(255,255,255,.3);}
+    .user-chip{font-size:11px;opacity:.85;margin-right:6px;}
+    /* Restricciones para el repartidor */
+    body.role-repartidor .nav-item[onclick*="historial"],
+    body.role-repartidor .nav-item[onclick*="resumen"],
+    body.role-repartidor .nav-item[onclick*="ruta"]{display:none !important;}
+    body.role-repartidor .del-btn,
+    body.role-repartidor #btn-delete-client{display:none !important;}
+    body.role-repartidor .bottom-nav{justify-content:center;}
+  </style>
+</head>
+<body>
+
+<!-- Pantalla de login (oculta hasta que se determine si hay sesión) -->
+<div class="view" id="view-login" style="display:none;">
+  <div class="login-view">
+    <div class="login-card">
+      <div class="login-logo">💧</div>
+      <div class="login-title">Reparto de Agua</div>
+      <div class="login-sub">Iniciá sesión para continuar</div>
+      <div class="login-error" id="login-error"></div>
+      <input type="email" id="login-email" class="login-input" placeholder="Correo electrónico" autocomplete="email" autocapitalize="off" autocorrect="off">
+      <input type="password" id="login-password" class="login-input" placeholder="Contraseña" autocomplete="current-password">
+      <button id="login-btn" class="login-btn" onclick="doLogin()">Ingresar</button>
+    </div>
+  </div>
+</div>
+
+<div class="view active" id="view-clientes">
+  <div class="header"><h1>💧 Reparto de Agua</h1><span class="user-chip" id="user-chip"></span><button class="logout-btn" onclick="doLogout()">Salir</button></div>
+  <div class="search-bar"><div class="search-wrap"><span class="search-icon">🔍</span><input type="search" class="search-input" id="search-input" placeholder="Buscar cliente..." oninput="filterClients(this.value)"></div></div>
+  <div class="chips-bar" id="clients-day-chips">
+    <button class="chip chip-day active" data-day="-1" onclick="setClientDay(-1)">📅 Todos los días</button>
+    <button class="chip chip-day" data-day="1" onclick="setClientDay(1)">Lun</button>
+    <button class="chip chip-day" data-day="2" onclick="setClientDay(2)">Mar</button>
+    <button class="chip chip-day" data-day="3" onclick="setClientDay(3)">Mié</button>
+    <button class="chip chip-day" data-day="4" onclick="setClientDay(4)">Jue</button>
+    <button class="chip chip-day" data-day="5" onclick="setClientDay(5)">Vie</button>
+    <button class="chip chip-day" data-day="0" onclick="setClientDay(0)">Sin día</button>
+  </div>
+  <div class="chips-bar" id="clients-chips">
+    <button class="chip chip-filter active" data-filter="all" onclick="setClientFilter('all')">Todos</button>
+    <button class="chip chip-filter" data-filter="debt" onclick="setClientFilter('debt')">Con deuda</button>
+    <button class="chip chip-filter" data-filter="disp" onclick="setClientFilter('disp')">Dispensers</button>
+    <button class="chip chip-filter" data-filter="today" onclick="setClientFilter('today')">Modif. hoy</button>
+    <span class="chip-sep"></span>
+    <button class="chip chip-sort active" data-sort="name" onclick="setClientSort('name')">A–Z</button>
+    <button class="chip chip-sort" data-sort="debt" onclick="setClientSort('debt')">Deuda ↓</button>
+    <button class="chip chip-sort" data-sort="stock" onclick="setClientSort('stock')">Stock ↓</button>
+    <button class="chip chip-sort" data-sort="mod" onclick="setClientSort('mod')">Recientes</button>
+  </div>
+  <div class="list-container" id="clients-list"></div>
+  <button class="fab" onclick="openAddClient()">+</button>
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="showTab('clientes')"><span class="nav-icon">👥</span>Clientes</button>
+    <button class="nav-item" onclick="showTab('historial')"><span class="nav-icon">🕒</span>Historial</button>
+    <button class="nav-item" onclick="showTab('resumen')"><span class="nav-icon">📊</span>Resumen</button>
+    <button class="nav-item" onclick="showTab('ruta')"><span class="nav-icon">🗺️</span>Ruta</button>
+  </div>
+</div>
+
+<div class="view" id="view-historial">
+  <div class="header"><h1>🕒 Historial</h1></div>
+  <div class="hist-date-bar">
+    <button class="hist-nav-btn" onclick="histShiftDate(-1)">◀</button>
+    <input type="date" class="hist-date-input" id="hist-date" onchange="setHistDate(this.value)">
+    <button class="hist-nav-btn" onclick="histShiftDate(1)">▶</button>
+    <button class="hist-today-btn" onclick="histGoToday()">Hoy</button>
+  </div>
+  <div id="historial-body" class="resumen-body"></div>
+  <div class="bottom-nav">
+    <button class="nav-item" onclick="showTab('clientes')"><span class="nav-icon">👥</span>Clientes</button>
+    <button class="nav-item active" onclick="showTab('historial')"><span class="nav-icon">🕒</span>Historial</button>
+    <button class="nav-item" onclick="showTab('resumen')"><span class="nav-icon">📊</span>Resumen</button>
+    <button class="nav-item" onclick="showTab('ruta')"><span class="nav-icon">🗺️</span>Ruta</button>
+  </div>
+</div>
+
+<div class="view" id="view-resumen">
+  <div class="header"><h1>📊 Resumen General</h1></div>
+  <div class="resumen-body" id="resumen-body"></div>
+  <div class="bottom-nav">
+    <button class="nav-item" onclick="showTab('clientes')"><span class="nav-icon">👥</span>Clientes</button>
+    <button class="nav-item" onclick="showTab('historial')"><span class="nav-icon">🕒</span>Historial</button>
+    <button class="nav-item active" onclick="showTab('resumen')"><span class="nav-icon">📊</span>Resumen</button>
+    <button class="nav-item" onclick="showTab('ruta')"><span class="nav-icon">🗺️</span>Ruta</button>
+  </div>
+</div>
+
+<div class="view" id="view-ruta">
+  <div class="header"><h1>🗺️ Ruta del Día</h1></div>
+  <div class="resumen-body" id="ruta-body" style="padding-bottom:90px;"></div>
+  <div class="bottom-nav">
+    <button class="nav-item" onclick="showTab('clientes')"><span class="nav-icon">👥</span>Clientes</button>
+    <button class="nav-item" onclick="showTab('historial')"><span class="nav-icon">🕒</span>Historial</button>
+    <button class="nav-item" onclick="showTab('resumen')"><span class="nav-icon">📊</span>Resumen</button>
+    <button class="nav-item active" onclick="showTab('ruta')"><span class="nav-icon">🗺️</span>Ruta</button>
+  </div>
+</div>
+
+<div class="view" id="view-detail">
+  <div class="header" id="detail-header">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <h1 id="detail-header-name">Cliente</h1>
+  </div>
+  <div class="detail-scroll" id="detail-content"></div>
+</div>
+
+<!-- MODAL: CLIENTE -->
+<div class="overlay" id="modal-add-client" onclick="overlayClose(event,'modal-add-client')">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-title" id="add-client-title">➕ Nuevo Cliente</div>
+    <input type="hidden" id="edit-client-id">
+    <div class="form-group"><label class="form-lbl">Nombre *</label><input type="text" class="form-input" id="client-name" placeholder="Ej: María González"></div>
+    <div class="form-group"><label class="form-lbl">Teléfono</label><input type="tel" class="form-input" id="client-phone" placeholder="Ej: 11 2345-6789"></div>
+    <div class="form-group">
+      <label class="form-lbl">Dirección</label>
+      <input type="text" class="form-input" id="client-address" placeholder="Escribí para buscar..." oninput="onAddressInput(this.value)">
+      <div id="address-dropdown" class="address-dd"></div>
+    </div>
+    <input type="hidden" id="client-lat">
+    <input type="hidden" id="client-lng">
+    <div class="form-group">
+      <label class="form-lbl">Dispenser</label>
+      <div class="disp-sel">
+        <div class="disp-opt selected" data-val="0" onclick="selectDisp(0)"><div class="do-icon">🚫</div><div class="do-label">Sin dispenser<br>$5.000/bid.</div></div>
+        <div class="disp-opt" data-val="1" onclick="selectDisp(1)"><div class="do-icon">🫙</div><div class="do-label">1 dispenser<br>$6.000/bid.</div></div>
+        <div class="disp-opt" data-val="2" onclick="selectDisp(2)"><div class="do-icon">🫙🫙</div><div class="do-label">2 dispensers<br>$6.000/bid.</div></div>
+      </div>
+      <input type="hidden" id="client-dispensers" value="0">
+    </div>
+    <div class="form-group">
+      <label class="form-lbl">Día de reparto</label>
+      <div class="day-sel" id="day-sel">
+        <div class="day-opt selected" data-val="0" onclick="selectDay(0)">—</div>
+        <div class="day-opt" data-val="1" onclick="selectDay(1)">Lun</div>
+        <div class="day-opt" data-val="2" onclick="selectDay(2)">Mar</div>
+        <div class="day-opt" data-val="3" onclick="selectDay(3)">Mié</div>
+        <div class="day-opt" data-val="4" onclick="selectDay(4)">Jue</div>
+        <div class="day-opt" data-val="5" onclick="selectDay(5)">Vie</div>
+      </div>
+      <input type="hidden" id="client-day" value="0">
+    </div>
+    <div class="form-group"><label class="form-lbl">Notas</label><input type="text" class="form-input" id="client-notes" placeholder="Ej: Timbre roto, llamar"></div>
+    <button class="btn-submit" onclick="saveClient()">Guardar Cliente</button>
+    <button class="btn-cancel" onclick="closeModal('modal-add-client')">Cancelar</button>
+    <button id="btn-delete-client" class="btn-delete-inline" style="display:none;" onclick="deleteFromEdit()">🗑 Borrar cliente</button>
+  </div>
+</div>
+
+<!-- MODAL: ENTREGA -->
+<div class="overlay" id="modal-delivery" onclick="overlayClose(event,'modal-delivery')">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-title">🚰 Registrar Entrega</div>
+    <input type="hidden" id="delivery-client-id">
+    <div id="disp-delivery-info"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-lbl">Bidones que dejás</label><input type="number" class="form-input" id="delivery-left" placeholder="0" inputmode="numeric" min="0" oninput="calcDeliveryTotal()"></div>
+      <div class="form-group"><label class="form-lbl">Vacíos que llevás</label><input type="number" class="form-input" id="delivery-taken" placeholder="0" inputmode="numeric" min="0"></div>
+    </div>
+    <div id="normal-price-row" class="form-group">
+      <label class="form-lbl">Precio por bidón ($)</label>
+      <input type="number" class="form-input" id="delivery-price" placeholder="5000" inputmode="decimal" oninput="calcDeliveryTotal()">
+    </div>
+    <div class="form-group"><label class="form-lbl">Fecha</label><input type="date" class="form-input" id="delivery-date"></div>
+    <div class="confirm-area"><span>Total a cobrar:</span><strong id="delivery-total-val">$0</strong><div class="total-breakdown" id="delivery-breakdown"></div></div>
+    <div class="form-group"><label class="form-lbl">Nota (opcional)</label><input type="text" class="form-input" id="delivery-note" placeholder=""></div>
+    <button class="btn-submit" onclick="saveDelivery()">Confirmar Entrega</button>
+    <button class="btn-cancel" onclick="closeModal('modal-delivery')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL: COBRAR CUOTA -->
+<div class="overlay" id="modal-cuota" onclick="overlayClose(event,'modal-cuota')">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-title">🫙 Cobrar cuota mensual</div>
+    <input type="hidden" id="cuota-client-id">
+    <div id="cuota-preview"></div>
+    <div class="form-group"><label class="form-lbl">Fecha de pago</label><input type="date" class="form-input" id="cuota-date"></div>
+    <div class="form-group"><label class="form-lbl">Método de pago</label><select class="form-input" id="cuota-method"><option>Efectivo</option><option>Transferencia</option><option>Débito</option><option>Otro</option></select></div>
+    <div class="form-group"><label class="form-lbl">Nota (opcional)</label><input type="text" class="form-input" id="cuota-note" placeholder=""></div>
+    <button class="btn-submit purple" onclick="saveCuota()">Confirmar cobro</button>
+    <button class="btn-cancel" onclick="closeModal('modal-cuota')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL: PAGO -->
+<div class="overlay" id="modal-payment" onclick="overlayClose(event,'modal-payment')">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-title">💰 Registrar Pago</div>
+    <input type="hidden" id="payment-client-id">
+    <div class="confirm-area"><span>Deuda actual:</span><strong id="payment-current-debt">$0</strong></div>
+    <div class="form-group"><label class="form-lbl">Monto cobrado ($) *</label><input type="number" class="form-input" id="payment-amount" placeholder="0" inputmode="decimal"></div>
+    <div class="form-group"><label class="form-lbl">Método de pago</label><select class="form-input" id="payment-method"><option>Efectivo</option><option>Transferencia</option><option>Débito</option><option>Otro</option></select></div>
+    <div class="form-group"><label class="form-lbl">Fecha</label><input type="date" class="form-input" id="payment-date"></div>
+    <div class="form-group"><label class="form-lbl">Nota (opcional)</label><input type="text" class="form-input" id="payment-note" placeholder="Ej: Abona la mitad"></div>
+    <button class="btn-submit green" onclick="savePayment()">Registrar Pago</button>
+    <button class="btn-cancel" onclick="closeModal('modal-payment')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL: EDITAR SUSCRIPCIÓN (TIMER) -->
+<div class="overlay" id="modal-sub" onclick="overlayClose(event,'modal-sub')">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-title">⏱ Período de suscripción</div>
+    <input type="hidden" id="sub-client-id">
+    <div id="sub-preview" style="margin-bottom:16px;font-size:14px;color:var(--text-muted);line-height:1.6;"></div>
+    <div class="form-group">
+      <label class="form-lbl">¿Cuándo pagó? (inicio del período)</label>
+      <input type="date" class="form-input" id="sub-start-date">
+    </div>
+    <div id="sub-calc" style="background:#f0f9ff;border-radius:10px;padding:12px;font-size:13px;margin-bottom:16px;"></div>
+    <button class="btn-submit" onclick="saveSubDate()">Guardar</button>
+    <button class="btn-cancel" onclick="closeModal('modal-sub')">Cancelar</button>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="confirm-dialog" id="confirm-dialog">
+  <div class="confirm-box">
+    <h3 id="confirm-title">¿Estás seguro?</h3>
+    <p id="confirm-msg">Esta acción no se puede deshacer.</p>
+    <div class="confirm-btns">
+      <button class="btn-no" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn-yes" id="confirm-yes-btn">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="install-banner hidden" id="install-banner">
+  <div style="font-size:28px">💧</div>
+  <div class="install-banner-text"><strong>Instalar Reparto de Agua</strong>Agregala a tu pantalla de inicio</div>
+  <button class="install-btn" id="install-btn">Instalar</button>
+  <button class="install-dismiss" onclick="dismissInstall()">✕</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── MAPS ─────────────────────────────────────────────────
+const MAPS_KEY = 'AIzaSyCi2a_yhkU5p2awhafzw8Tj4HbsdnFsvdk';
+
+// ── PRECIOS ──────────────────────────────────────────────
+// Lógica NUEVA: cada bidón vale $6.000 para clientes con dispenser.
+// La deuda = bidones × $6.000 − pagos (no hay concepto de cuota).
+const PRICES = {
+  normal:             5000,   // por bidón (clientes sin dispenser)
+  dispenserPerUnit:   6000,   // por cada bidón con dispenser
+  // Lo siguiente SOLO se usa en la migración one-shot para reconstruir deudas viejas.
+  _OLD_dispenserFlat:     24000,
+  _OLD_dispenserThreshold:    4,
+};
+
+// [DEPRECADO] — dejado como no-op para referencias existentes. Devuelve 0.
+function calcMonthlyCharge() { return 0; }
+
+// [MIGRACIÓN] — reproduce la fórmula vieja de cuota (flat ≤4 bid., $6k/bid. si >4)
+function _calcMonthlyChargeOLD(bidones, dispensers) {
+  if (dispensers <= 0) return 0;
+  const threshold = PRICES._OLD_dispenserThreshold * dispensers;
+  const flat      = PRICES._OLD_dispenserFlat * dispensers;
+  if (bidones <= threshold) return flat;
+  return bidones * PRICES.dispenserPerUnit;
+}
+
+// ── FIREBASE ─────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyCVV6WMpwavlRUjhNhKSht5GiO4I0Z6V7M",
+  authDomain: "reparto-agua-fc872.firebaseapp.com",
+  databaseURL: "https://reparto-agua-fc872-default-rtdb.firebaseio.com",
+  projectId: "reparto-agua-fc872",
+  storageBucket: "reparto-agua-fc872.firebasestorage.app",
+  messagingSenderId: "1028420747828",
+  appId: "1:1028420747828:web:b736ec7d4eeb82f7a74061"
+};
+firebase.initializeApp(firebaseConfig);
+const rtdb = firebase.database();
+
+// Cache local — se sincroniza con Firebase en tiempo real
+let cache = { clients: [], deliveries: [], payments: [], resets: {}, stockBidones: 0, stockBaja: 0, truckLoads: {} };
+let fbReady = false;
+
+function toArray(val) {
+  if (!val) return [];
+  if (Array.isArray(val)) return val;
+  return Object.values(val).filter(v => v !== null && v !== undefined);
+}
+
+// ── DATA ─────────────────────────────────────────────────
+const DB = {
+  get clients()    { return cache.clients; },
+  get deliveries() { return cache.deliveries; },
+  get payments()   { return cache.payments; },
+  save(k, d) {
+    cache[k] = d;
+    rtdb.ref('agua/' + k).set(d.length ? d : []);
+  },
+  saveResets(r) {
+    cache.resets = r;
+    rtdb.ref('agua/resets').set(r);
+  },
+  getResets() { return cache.resets || {}; },
+  getStock() { return cache.stockBidones || 0; },
+  saveStock(n) { cache.stockBidones = n; rtdb.ref('agua/stockBidones').set(n); },
+  getBaja() { return cache.stockBaja || 0; },
+  saveBaja(n) { cache.stockBaja = n; rtdb.ref('agua/stockBaja').set(n); },
+  getTruckLoad(date) { return (cache.truckLoads && cache.truckLoads[date]) || 0; },
+  saveTruckLoad(date, n) {
+    if(!cache.truckLoads) cache.truckLoads = {};
+    if(n<=0){ delete cache.truckLoads[date]; rtdb.ref('agua/truckLoads/'+date).remove(); }
+    else { cache.truckLoads[date] = n; rtdb.ref('agua/truckLoads/'+date).set(n); }
+  },
+  id() { return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+};
+
+// ── CÁLCULOS ─────────────────────────────────────────────
+// LÓGICA NUEVA: deuda = bidones × precio + cargos extras − pagos. Sin cuota mensual.
+function calcClient(cid) {
+  const c = DB.clients.find(x=>x.id===cid);
+  const dp = c ? (c.dispensers||0) : 0;
+  const ds = DB.deliveries.filter(d=>d.clientId===cid);
+  const ps = DB.payments.filter(p=>p.clientId===cid);
+  const tl = ds.reduce((s,d)=>s+(d.left||0),0);
+  const tt = ds.reduce((s,d)=>s+(d.taken||0),0);
+  let tc;
+  if (dp > 0) {
+    // Dispenser: cada bidón entregado cuenta $6.000 (ignoramos price/freeLeft históricos).
+    // extraCharge incluye los ajustes de migración y cualquier cargo manual.
+    tc = ds.reduce((s,d)=>s+(d.left||0)*PRICES.dispenserPerUnit+(d.extraCharge||0),0);
+  } else {
+    // Sin dispenser: precio por entrega (respeta freeLeft por si hubo promos).
+    tc = ds.reduce((s,d)=>s+Math.max(0,(d.left||0)-(d.freeLeft||0))*(d.price||0)+(d.extraCharge||0),0);
+  }
+  const tp = ps.reduce((s,p)=>s+(p.amount||0),0);
+  return { stock:tl-tt, debt:tc-tp, totalCharged:tc, totalPaid:tp, pending: 0 };
+}
+
+// [MIGRACIÓN] lógica vieja — solo se usa para reconstruir la deuda al migrar
+function _calcClientOLD(cid) {
+  const c = DB.clients.find(x=>x.id===cid);
+  const dp = c ? (c.dispensers||0) : 0;
+  const ds = DB.deliveries.filter(d=>d.clientId===cid);
+  const ps = DB.payments.filter(p=>p.clientId===cid);
+  const tc = ds.reduce((s,d)=>s+Math.max(0,(d.left||0)-(d.freeLeft||0))*(d.price||0)+(d.extraCharge||0),0);
+  const tp = ps.reduce((s,p)=>s+(p.amount||0),0);
+  let pending = 0;
+  if(dp>0){
+    const ym=thisMonthISO(), ms=getMonthStats(cid,ym);
+    if(!ms.cuotaCobrada) pending=_calcMonthlyChargeOLD(ms.rawBidones,dp);
+  }
+  return { debt:tc+pending-tp };
+}
+
+// ── MIGRACIÓN 6000 ───────────────────────────────────────
+// Corre UNA sola vez cuando un dispositivo ve la versión nueva por primera vez.
+// Para cada cliente, calcula la deuda bajo lógica vieja (con pending) y bajo la nueva,
+// e inserta un cargo de ajuste por la diferencia. Así la deuda queda idéntica a la anterior.
+let _migrationDone = false;
+function runMigration6000() {
+  if (_migrationDone) return;
+  _migrationDone = true;
+  const adjustments = [];
+  DB.clients.forEach(c => {
+    const oldDebt = _calcClientOLD(c.id).debt;
+    const newDebt = calcClient(c.id).debt;
+    const delta = oldDebt - newDebt;
+    if (Math.abs(delta) > 0.5) {
+      adjustments.push({
+        id: DB.id(),
+        clientId: c.id,
+        date: todayISO(),
+        loggedAt: todayISO(),
+        left: 0, taken: 0, price: 0, freeLeft: 0,
+        extraCharge: delta,
+        note: 'Ajuste migración $6.000/bidón (saldo previo preservado)'
+      });
+    }
+  });
+  if (adjustments.length) {
+    const all = DB.deliveries.concat(adjustments);
+    cache.deliveries = all;
+    rtdb.ref('agua/deliveries').set(all);
+  }
+  rtdb.ref('agua/migrated6000').set(true);
+  console.log('Migración $6.000/bidón: ' + adjustments.length + ' ajustes aplicados');
+  showToast('✅ Saldos migrados · ' + adjustments.length + ' ajuste(s)');
+}
+
+// ── RECÁLCULO DISPENSER v2 ───────────────────────────────
+// Para clientes con dispenser: deuda = Σ(bidones × 6.000) − Σ(pagos).
+// Elimina registros con left=0 (ajustes de migración, cuotas viejas, cargos legacy)
+// que estaban generando saldos a favor falsos.
+let _recalcDispDone = false;
+function runRecalcDispenser6000() {
+  if (_recalcDispDone) return;
+  _recalcDispDone = true;
+  const dispIds = new Set(DB.clients.filter(c=>(c.dispensers||0)>0).map(c=>c.id));
+  const before = DB.deliveries.length;
+  const cleaned = DB.deliveries.filter(d=>{
+    if (!dispIds.has(d.clientId)) return true;     // sin dispenser: intacto
+    if ((d.left||0) > 0) return true;               // bidones reales: se mantienen
+    return false;                                   // ajustes/cuotas para dispenser: fuera
+  });
+  const removed = before - cleaned.length;
+  cache.deliveries = cleaned;
+  rtdb.ref('agua/deliveries').set(cleaned);
+  rtdb.ref('agua/recalculated6000_v2').set(true);
+  console.log('Recálculo dispenser: ' + removed + ' registro(s) eliminados');
+  showToast('✅ Dispenser recalculado · ' + removed + ' registro(s) limpio(s)');
+}
+
+function getMonthStats(cid, ym) {
+  const c = DB.clients.find(x=>x.id===cid);
+  // Si el cliente tiene dispenser y período activo, filtrar por período (no por mes calendario)
+  const hasPeriod = c && c.subscriptionStart && (c.dispensers||0) > 0;
+  let ds, resetKey;
+  if(hasPeriod) {
+    const start = c.subscriptionStart;
+    const end   = addDays(start, 30);
+    ds = DB.deliveries.filter(d=>d.clientId===cid&&(d.date||'')>=start&&(d.date||'')<=end);
+    resetKey = cid+'_p_'+start;
+  } else {
+    ds = DB.deliveries.filter(d=>d.clientId===cid&&(d.date||'').startsWith(ym));
+    resetKey = cid+'_'+ym;
+  }
+  const resets = DB.getResets();
+  const offset = resets[resetKey]||0;
+  const rawBidones = ds.reduce((s,d)=>s+(d.left||0),0);
+  return {
+    bidones:      Math.max(0, rawBidones - offset),  // solo para la barra visual
+    rawBidones:   rawBidones,                          // para cálculo real de deuda
+    cuotaCobrada: ds.some(d=>(d.extraCharge||0)>0),
+    cuotaTotal:   ds.reduce((s,d)=>s+(d.extraCharge||0),0),
+    periodStart:  hasPeriod ? c.subscriptionStart : null,
+    periodEnd:    hasPeriod ? addDays(c.subscriptionStart, 30) : null,
+    resetKey
+  };
+}
+
+function resetMonthConsumption(cid) {
+  const c=DB.clients.find(x=>x.id===cid); if(!c) return;
+  const dp=c.dispensers||0;
+  const ms=getMonthStats(cid,thisMonthISO());
+
+  // Si hay consumo no cobrado en este período, registrar la deuda antes de cerrar
+  if(!ms.cuotaCobrada && ms.rawBidones>0) {
+    const charge=calcMonthlyCharge(ms.rawBidones,dp);
+    if(charge>0) {
+      const label=ms.periodStart?fmtDate(ms.periodStart)+' – '+fmtDate(ms.periodEnd):thisMonthISO();
+      const ds=DB.deliveries;
+      ds.push({id:DB.id(),clientId:cid,date:todayISO(),left:0,taken:0,price:0,freeLeft:0,extraCharge:charge,note:'Cuota período '+label});
+      DB.save('deliveries',ds);
+      showToast('✅ Período cerrado · Deuda '+fmt(charge)+' registrada');
+    } else {
+      showToast('✅ Período renovado');
+    }
+  } else {
+    showToast('✅ Período renovado');
+  }
+
+  // Renovar período: subscriptionStart = hoy → nuevo contador empieza desde 0
+  const clients=DB.clients, idx=clients.findIndex(x=>x.id===cid);
+  if(idx>=0){clients[idx].subscriptionStart=todayISO();DB.save('clients',clients);}
+
+  openDetail(cid);
+  $('view-detail').classList.add('active');
+  document.querySelectorAll('.view:not(#view-detail)').forEach(v=>v.classList.remove('active'));
+}
+
+// ── TIMER ────────────────────────────────────────────────
+function calcDaysLeft(client) {
+  if (!client.subscriptionStart) return null;
+  const start = new Date(client.subscriptionStart);
+  const today = new Date();
+  today.setHours(0,0,0,0); start.setHours(0,0,0,0);
+  return 30 - Math.floor((today-start)/86400000);
+}
+
+function timerClass(days) {
+  if (days === null)  return 'none';
+  if (days <= 0)      return 'overdue';
+  if (days <= 5)      return 'urgent';
+  if (days <= 10)     return 'warn';
+  return 'ok';
+}
+
+function timerBadgeHTML(client, cid) {
+  const days = calcDaysLeft(client);
+  const cls  = timerClass(days);
+  let label;
+  if (days === null)   label = '⏱ --';
+  else if (days <= 0)  label = '⏱ VENCIDO';
+  else                 label = '⏱ '+days+'d';
+  return '<span class="timer-badge timer-'+cls+'" onclick="event.stopPropagation();openSubModal(\''+cid+'\')">'+label+'</span>';
+}
+
+// ── FORMATO ──────────────────────────────────────────────
+const $       = id => document.getElementById(id);
+const fmt     = n  => '$'+Math.abs(n).toLocaleString('es-AR',{minimumFractionDigits:0,maximumFractionDigits:0});
+const fmtDate = s  => { if(!s)return''; const[y,m,d]=s.split('-'); return d+'/'+m+'/'+y; };
+const todayISO      = () => new Date().toISOString().slice(0,10);
+const thisMonthISO  = () => new Date().toISOString().slice(0,7);
+const initials      = n  => n.trim().split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+
+// ── NAVEGACIÓN ───────────────────────────────────────────
+let currentView = 'clientes';
+function renderCurrentView() {
+  if(currentView==='clientes') renderClients();
+  else if(currentView==='historial') renderHistorial();
+  else if(currentView==='ruta') renderRuta();
+  else renderResumen();
+}
+function showTab(tab) {
+  // Repartidor solo puede ver Clientes
+  if (userRole === 'repartidor' && tab !== 'clientes') tab = 'clientes';
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  currentView = tab;
+  $('view-'+tab).classList.add('active');
+  renderCurrentView();
+}
+function goBack() {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  $('view-'+currentView).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── LISTA CLIENTES ───────────────────────────────────────
+let searchQuery='', clientFilter='all', clientSort='name';
+function filterClients(q) { searchQuery=q.toLowerCase(); renderClients(); }
+function setClientFilter(f){ clientFilter=f; document.querySelectorAll('#clients-chips .chip-filter').forEach(b=>b.classList.toggle('active', b.dataset.filter===f)); renderClients(); }
+function setClientSort(s){ clientSort=s; document.querySelectorAll('#clients-chips .chip-sort').forEach(b=>b.classList.toggle('active', b.dataset.sort===s)); renderClients(); }
+let clientDay = (()=>{ const d=new Date().getDay(); return (d>=1&&d<=5)?d:-1; })();
+function setClientDay(d){ clientDay=d; document.querySelectorAll('#clients-day-chips .chip-day').forEach(b=>b.classList.toggle('active', parseInt(b.dataset.day)===d)); renderClients(); }
+function syncClientDayChips(){ document.querySelectorAll('#clients-day-chips .chip-day').forEach(b=>b.classList.toggle('active', parseInt(b.dataset.day)===clientDay)); }
+
+function lastActivity(cid){
+  let d='';
+  DB.deliveries.forEach(x=>{if(x.clientId===cid&&(x.date||'')>d)d=x.date||'';});
+  DB.payments.forEach(x=>{if(x.clientId===cid&&(x.date||'')>d)d=x.date||'';});
+  return d;
+}
+
+function renderClients() {
+  syncClientDayChips();
+  const today=todayISO();
+  let clients = DB.clients
+    .filter(c=>!searchQuery||c.name.toLowerCase().includes(searchQuery)||(c.phone||'').includes(searchQuery));
+  const cals = new Map();
+  clients.forEach(c=>cals.set(c.id, calcClient(c.id)));
+  const mods = new Map();
+  clients.forEach(c=>mods.set(c.id, lastActivity(c.id)));
+
+  // Filtro por día de reparto
+  if(clientDay>=0) clients = clients.filter(c=>(c.dayOfWeek||0)===clientDay);
+
+  if(clientFilter==='debt') clients = clients.filter(c=>cals.get(c.id).debt>0);
+  else if(clientFilter==='disp') clients = clients.filter(c=>(c.dispensers||0)>0);
+  else if(clientFilter==='today') clients = clients.filter(c=>mods.get(c.id)===today);
+
+  if(clientSort==='debt') clients.sort((a,b)=>cals.get(b.id).debt - cals.get(a.id).debt || a.name.localeCompare(b.name));
+  else if(clientSort==='stock') clients.sort((a,b)=>cals.get(b.id).stock - cals.get(a.id).stock || a.name.localeCompare(b.name));
+  else if(clientSort==='mod') clients.sort((a,b)=>(mods.get(b.id)||'').localeCompare(mods.get(a.id)||'') || a.name.localeCompare(b.name));
+  else clients.sort((a,b)=>a.name.localeCompare(b.name));
+
+  const list = $('clients-list');
+  if(!clients.length) {
+    const msg = searchQuery ? 'No encontré ese cliente.'
+      : clientFilter==='debt' ? 'Ningún cliente con deuda. 🎉'
+      : clientFilter==='disp' ? 'No hay clientes con dispenser.'
+      : clientFilter==='today' ? 'Nadie modificado hoy.'
+      : clientDay===0 ? 'Ningún cliente sin día asignado. ✅'
+      : clientDay>=1 && clientDay<=5 ? 'No hay clientes asignados al '+DAY_FULL[clientDay].toLowerCase()+'.<br>Editá un cliente para acomodarlo en este día.'
+      : 'Todavía no hay clientes.<br>Tocá el + para agregar uno.';
+    list.innerHTML='<div class="empty"><div class="empty-icon">💧</div><div class="empty-text">'+msg+'</div></div>';
+    return;
+  }
+  list.innerHTML = clients.map(c=>{
+    const cal=cals.get(c.id), dp=c.dispensers||0;
+    const timerHTML = dp>0 ? timerBadgeHTML(c,c.id) : '';
+    const modTag = mods.get(c.id)===today ? '<span class="tag tag-today">● Hoy</span>' : '';
+    const dow = c.dayOfWeek||0;
+    const dayTag = (clientDay===-1 && dow>0) ? '<span class="tag day-tag">'+DAY_LABELS[dow]+'</span>' : '';
+    return '<div class="client-card" onclick="openDetail(\''+c.id+'\')">' +
+      '<div class="avatar '+(dp>0?'disp':'')+'">'+initials(c.name)+'</div>'+
+      '<div class="client-info">'+
+        '<div class="client-name-row"><span class="client-name">'+c.name+'</span>'+timerHTML+modTag+dayTag+'</div>'+
+        '<div class="client-sub">'+(c.phone||'Sin teléfono')+(c.address?' · '+c.address:'')+'</div>'+
+      '</div>'+
+      '<div class="client-right">'+
+        (cal.debt>0?'<span class="tag tag-debt">'+fmt(cal.debt)+'</span>':cal.debt<0?'<span class="tag tag-credit">+'+fmt(Math.abs(cal.debt))+'</span>':'<span class="tag tag-ok">Sin deuda</span>')+
+        '<span class="tag tag-stock">🪣 '+cal.stock+'</span>'+
+        (dp>0?'<span class="tag tag-disp">🫙×'+dp+'</span>':'')+
+      '</div></div>';
+  }).join('');
+}
+
+// ── HISTORIAL ────────────────────────────────────────────
+let histDate = todayISO();
+function setHistDate(d){ if(!d) return; histDate=d; $('hist-date').value=d; renderHistorial(); }
+function histShiftDate(n){
+  const [y,m,d]=histDate.split('-').map(Number);
+  const dt=new Date(y, m-1, d); dt.setDate(dt.getDate()+n);
+  setHistDate(dt.toISOString().slice(0,10));
+}
+function histGoToday(){ setHistDate(todayISO()); }
+function changeTruckLoad(delta){
+  const cur = DB.getTruckLoad(histDate);
+  const next = Math.max(0, cur + delta);
+  DB.saveTruckLoad(histDate, next);
+  renderHistorial();
+}
+
+// Calcula cuántos bidones quedaron en el camión al cierre del día anterior.
+function getTruckCarryover(date){
+  const truckDates = Object.keys(cache.truckLoads || {});
+  const delDates = DB.deliveries.map(d => d.date);
+  const allDates = [...new Set([...truckDates, ...delDates])].filter(d => d && d < date).sort();
+  let acc = 0;
+  for(const d of allDates){
+    const additions = (cache.truckLoads && cache.truckLoads[d]) || 0;
+    const sold = DB.deliveries.filter(x => x.date === d).reduce((s,x) => s + (x.left||0), 0);
+    acc = Math.max(0, acc + additions - sold);
+  }
+  return acc;
+}
+
+function renderHistorial() {
+  const body=$('historial-body');
+  const today=todayISO();
+  if(!histDate) histDate=today;
+  $('hist-date').value=histDate;
+  const nameOf = cid => { const c=DB.clients.find(x=>x.id===cid); return c?c.name:'Cliente'; };
+
+  // Movimientos del día
+  const dayDel = DB.deliveries.filter(d=>d.date===histDate);
+  const dayPay = DB.payments.filter(p=>p.date===histDate);
+
+  // Clasificar ajustes vs entregas reales
+  const entregas = dayDel.filter(d=>!((d.extraCharge||0)!==0 && !(d.left||0) && (d.note||'').toLowerCase().includes('ajuste')));
+  const ajustes  = dayDel.filter(d=>  (d.extraCharge||0)!==0 && !(d.left||0) && (d.note||'').toLowerCase().includes('ajuste'));
+
+  const hBid = entregas.reduce((s,d)=>s+(d.left||0),0);
+  const hVac = entregas.reduce((s,d)=>s+(d.taken||0),0);
+  const hPag = dayPay.reduce((s,p)=>s+(p.amount||0),0);
+  const hPagCash     = dayPay.filter(p => (p.method||'Efectivo') === 'Efectivo').reduce((s,p)=>s+(p.amount||0),0);
+  const hPagTransfer = dayPay.filter(p => p.method === 'Transferencia').reduce((s,p)=>s+(p.amount||0),0);
+  const hCli = new Set([...entregas.map(d=>d.clientId), ...dayPay.map(p=>p.clientId)]).size;
+
+  const [yy,mm,dd]=histDate.split('-');
+  const fechaObj = new Date(parseInt(yy), parseInt(mm)-1, parseInt(dd));
+  const fechaLbl = fechaObj.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
+  const isToday = histDate===today;
+  const titulo = isToday ? 'Hoy · '+fechaLbl : fechaLbl;
+
+  let html='';
+
+  // Tarjeta cargados al camión (con arrastre del día anterior)
+  const truckCarry   = getTruckCarryover(histDate);
+  const truckAdded   = DB.getTruckLoad(histDate);
+  const truckLoaded  = truckCarry + truckAdded;
+  const truckSold    = hBid;
+  const truckLeft    = truckLoaded - truckSold;
+  html += '<div class="truck-card">'+
+    '<div class="truck-row">'+
+      '<div class="truck-info">'+
+        '<div class="truck-title">🚛 Bidones en el camión</div>'+
+        '<div class="truck-sub">Restante '+(isToday?'ahora':'al cierre')+' · arrastra del día anterior</div>'+
+      '</div>'+
+      '<div class="truck-counter">'+
+        '<button class="truck-btn" onclick="changeTruckLoad(-1)">−</button>'+
+        '<span class="truck-num'+(truckLeft<0?' neg':'')+'" id="truck-num-val">'+truckLeft+'</span>'+
+        '<button class="truck-btn" onclick="changeTruckLoad(1)">+</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="truck-stats">'+
+      '<div class="truck-stat"><div class="truck-stat-val">'+truckLoaded+'</div><div class="truck-stat-lbl">'+(truckCarry>0?'Cargué (+'+truckCarry+' ayer)':'Cargué')+'</div></div>'+
+      '<div class="truck-stat"><div class="truck-stat-val">'+truckSold+'</div><div class="truck-stat-lbl">Vendí</div></div>'+
+      '<div class="truck-stat"><div class="truck-stat-val'+(truckLeft<0?' ':'')+'" style="'+(truckLeft<0?'color:#dc2626':'')+'">'+truckLeft+'</div><div class="truck-stat-lbl">Restante</div></div>'+
+    '</div>'+
+  '</div>';
+
+  // Tarjeta balance del día
+  html += '<div class="day-report">'+
+    '<div class="day-report-date">📅 '+titulo+'</div>'+
+    '<div class="day-stats-grid">'+
+      '<div class="day-stat"><div class="day-stat-val">'+hBid+'</div><div class="day-stat-lbl">🚰 Entregados</div></div>'+
+      '<div class="day-stat"><div class="day-stat-val">'+hVac+'</div><div class="day-stat-lbl">🪣 Vacíos</div></div>'+
+      '<div class="day-stat"><div class="day-stat-val" style="font-size:19px">'+fmt(hPagCash)+'</div><div class="day-stat-lbl">💵 Efectivo</div></div>'+
+      '<div class="day-stat"><div class="day-stat-val" style="font-size:19px">'+fmt(hPagTransfer)+'</div><div class="day-stat-lbl">💳 Transferencia</div></div>'+
+      '<div class="day-stat wide"><div class="day-stat-val" style="font-size:15px">'+hCli+' cliente'+(hCli!==1?'s':'')+'</div><div class="day-stat-lbl">Cobrado total: '+fmt(hPag)+'</div></div>'+
+    '</div>'+
+    (isToday?'<button class="btn-share" onclick="shareReport()">📤 Compartir reporte del día</button>':'')+
+  '</div>';
+
+  // Lista de movimientos del día
+  const events=[];
+  entregas.forEach(d=>events.push({kind:'delivery', ...d, amount: Math.max(0,(d.left||0)-(d.freeLeft||0))*(d.price||0)+(d.extraCharge||0)}));
+  ajustes.forEach(d=>events.push({kind:'adj', ...d, amount:d.extraCharge||0}));
+  dayPay.forEach(p=>events.push({kind:'payment', ...p}));
+
+  html += '<div class="sec-title" style="background:transparent;padding:14px 4px 6px;">Movimientos del día</div>';
+  if(!events.length){
+    html += '<div class="empty" style="padding:32px 20px;"><div class="empty-icon">🗓️</div><div class="empty-text">Sin movimientos este día.</div></div>';
+  } else {
+    html += '<div class="history-container" style="padding:0;">';
+    events.forEach(e=>{
+      if(e.kind==='delivery'){
+        const desc = e.left+' bid. dejados'+(e.taken?' · '+e.taken+' vacíos':'')+(e.note?' · '+e.note:'');
+        html += '<div class="hist-item" onclick="openDetail(\''+e.clientId+'\')" style="cursor:pointer;">'+
+          '<div class="hist-icon delivery">🚰</div>'+
+          '<div class="hist-body">'+
+            '<div class="hist-type delivery">'+nameOf(e.clientId)+'</div>'+
+            '<div class="hist-desc">'+desc+'</div>'+
+          '</div>'+
+          '<div class="hist-right"><div class="hist-amount charge">+'+fmt(e.amount)+'</div></div>'+
+        '</div>';
+      } else if(e.kind==='adj'){
+        const sign = e.amount>=0 ? '+' : '';
+        const cls = e.amount>=0 ? 'charge' : 'paid';
+        html += '<div class="hist-item" onclick="openDetail(\''+e.clientId+'\')" style="cursor:pointer;">'+
+          '<div class="hist-icon cuota">⚖️</div>'+
+          '<div class="hist-body">'+
+            '<div class="hist-type cuota">'+nameOf(e.clientId)+'</div>'+
+            '<div class="hist-desc">'+(e.note||'Ajuste')+'</div>'+
+          '</div>'+
+          '<div class="hist-right"><div class="hist-amount '+cls+'">'+sign+fmt(e.amount)+'</div></div>'+
+        '</div>';
+      } else {
+        html += '<div class="hist-item" onclick="openDetail(\''+e.clientId+'\')" style="cursor:pointer;">'+
+          '<div class="hist-icon payment">💵</div>'+
+          '<div class="hist-body">'+
+            '<div class="hist-type payment">'+nameOf(e.clientId)+'</div>'+
+            '<div class="hist-desc">Pago'+(e.note?' · '+e.note:'')+'</div>'+
+          '</div>'+
+          '<div class="hist-right"><div class="hist-amount paid">'+fmt(e.amount)+'</div></div>'+
+        '</div>';
+      }
+    });
+    html += '</div>';
+  }
+
+  body.innerHTML = html;
+}
+
+// ── RESUMEN ───────────────────────────────────────────────
+function renderResumen() {
+  const ym=thisMonthISO();
+  let td=0,ts=0,tc=0,tp=0,dc=0; const deu=[];
+  DB.clients.forEach(c=>{
+    const cal=calcClient(c.id);
+    td+=cal.debt; ts+=cal.stock; tc+=cal.totalCharged; tp+=cal.totalPaid;
+    if((c.dispensers||0)>0) dc++;
+    if(cal.debt>0) deu.push({name:c.name,debt:cal.debt,id:c.id});
+  });
+  deu.sort((a,b)=>b.debt-a.debt);
+  const md=DB.deliveries.filter(d=>(d.date||'').startsWith(ym));
+  const mb=md.reduce((s,d)=>s+(d.left||0),0);
+  const mc=md.reduce((s,d)=>s+Math.max(0,(d.left||0)-(d.freeLeft||0))*(d.price||0)+(d.extraCharge||0),0);
+  $('resumen-body').innerHTML=
+    // Deuda total
+    '<div class="section-card">'+
+      '<div class="section-hdr" onclick="toggleSection(\'sec-deuda\',\'chev-deuda\')">'+
+        '<div class="section-hdr-left">'+
+          '<div class="section-lbl">Deuda total</div>'+
+          '<div class="section-val '+(td>0?'red':'green')+'">'+fmt(td)+'</div>'+
+          '<div class="section-sub">'+deu.length+' cliente'+(deu.length!==1?'s':'')+' con saldo pendiente</div>'+
+        '</div>'+
+        '<div class="section-chev" id="chev-deuda">▼</div>'+
+      '</div>'+
+      '<div class="section-body" id="sec-deuda">'+
+        (deu.length?deu.map(d=>'<div class="deudor-row" onclick="openDetail(\''+d.id+'\')"><span class="deudor-name">'+d.name+'</span><span class="deudor-debt">'+fmt(d.debt)+'</span></div>').join('')
+          :'<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:6px 0;">✅ Sin deudas pendientes</div>')+
+      '</div>'+
+    '</div>'+
+    // Este mes
+    '<div class="section-card">'+
+      '<div class="section-hdr" onclick="toggleSection(\'sec-mes\',\'chev-mes\')">'+
+        '<div class="section-hdr-left">'+
+          '<div class="section-lbl">Este mes</div>'+
+          '<div class="section-val blue">'+mb+' bidones</div>'+
+          '<div class="section-sub">'+fmt(mc)+' · '+md.length+' entregas</div>'+
+        '</div>'+
+        '<div class="section-chev" id="chev-mes">▼</div>'+
+      '</div>'+
+      '<div class="section-body" id="sec-mes">'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'+
+          '<div style="background:var(--primary-light);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:20px;font-weight:800;color:#0369a1;">'+ts+'</div><div style="font-size:11px;color:var(--text-muted);margin-top:3px;text-transform:uppercase;letter-spacing:.4px;">Bidones en clientes</div></div>'+
+          '<div style="background:var(--disp-light);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:20px;font-weight:800;color:var(--disp);">'+dc+'</div><div style="font-size:11px;color:var(--text-muted);margin-top:3px;text-transform:uppercase;letter-spacing:.4px;">Con dispenser</div></div>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    // Inventario
+    '<div class="section-card">'+
+      '<div class="stock-row">'+
+        '<div><div class="section-lbl">🪣 Mis bidones</div><div style="font-size:12px;color:var(--text-muted);margin-top:1px;">Stock propio</div></div>'+
+        '<div class="stock-counter">'+
+          '<button class="stock-btn" onclick="saveStockBidones(Math.max(0,DB.getStock()-1))">−</button>'+
+          '<span id="stock-bidones-val" class="stock-num" style="color:#0369a1;">'+DB.getStock()+'</span>'+
+          '<button class="stock-btn" onclick="saveStockBidones(DB.getStock()+1)">+</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="stock-row">'+
+        '<div><div class="section-lbl" style="color:#dc2626;">🗑️ Bidones de baja</div><div style="font-size:12px;color:var(--text-muted);margin-top:1px;">Perdidos o rotos</div></div>'+
+        '<div class="stock-counter">'+
+          '<button class="stock-btn red" onclick="saveStockBaja(Math.max(0,DB.getBaja()-1))">−</button>'+
+          '<span id="stock-baja-val" class="stock-num" style="color:#dc2626;">'+DB.getBaja()+'</span>'+
+          '<button class="stock-btn red" onclick="saveStockBaja(DB.getBaja()+1)">+</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    // Histórico
+    '<div class="section-card">'+
+      '<div class="section-hdr" onclick="toggleSection(\'sec-hist\',\'chev-hist\')">'+
+        '<div class="section-hdr-left">'+
+          '<div class="section-lbl">Histórico</div>'+
+          '<div class="section-val green">'+fmt(tc)+' facturado</div>'+
+          '<div class="section-sub">'+fmt(tp)+' cobrado</div>'+
+        '</div>'+
+        '<div class="section-chev" id="chev-hist">▼</div>'+
+      '</div>'+
+      '<div class="section-body" id="sec-hist">'+
+        '<div style="font-size:14px;color:var(--text-muted);line-height:2.2;">'+
+          '<div>📦 Clientes activos: <strong style="color:var(--text);">'+DB.clients.length+'</strong></div>'+
+          '<div>🫙 Con dispenser: <strong style="color:var(--disp);">'+dc+'</strong></div>'+
+          '<div>💰 Total cobrado: <strong style="color:#16a34a;">'+fmt(tp)+'</strong></div>'+
+          '<div>📊 Pendiente de cobro: <strong style="color:'+(tc-tp>0?'#dc2626':'#16a34a')+';">'+fmt(tc-tp)+'</strong></div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+}
+
+function saveStockBidones(n) {
+  DB.saveStock(n);
+  const el = $('stock-bidones-val');
+  if(el) el.textContent = n;
+}
+function saveStockBaja(n) {
+  const prev = DB.getBaja();
+  const diff = n - prev; // cuántos se agregan o quitan
+  const nuevoStock = Math.max(0, DB.getStock() - diff);
+  DB.saveBaja(n);
+  DB.saveStock(nuevoStock);
+  const elBaja = $('stock-baja-val');
+  const elStock = $('stock-bidones-val');
+  if(elBaja) elBaja.textContent = n;
+  if(elStock) elStock.textContent = nuevoStock;
+}
+
+function toggleSection(bodyId, chevronId) {
+  const body = $(bodyId), chev = $(chevronId);
+  if(!body) return;
+  const open = body.style.display !== 'none' && body.style.display !== '';
+  body.style.display = open ? 'none' : 'block';
+  if(chev) chev.textContent = open ? '▶' : '▼';
+}
+
+function shareReport() {
+  const today = todayISO();
+  const hd = DB.deliveries.filter(d => d.date === today);
+  const hp = DB.payments.filter(p => p.date === today);
+  const hBid = hd.reduce((s,d) => s+(d.left||0), 0);
+  const hVac = hd.reduce((s,d) => s+(d.taken||0), 0);
+  const hPagCash     = hp.filter(p => (p.method||'Efectivo') === 'Efectivo').reduce((s,p)=>s+(p.amount||0),0);
+  const hPagTransfer = hp.filter(p => p.method === 'Transferencia').reduce((s,p)=>s+(p.amount||0),0);
+  const hPagTotal    = hp.reduce((s,p)=>s+(p.amount||0),0);
+  const hCli = [...new Set([...hd.map(d => d.clientId), ...hp.map(p => p.clientId)])].length;
+  const fechaHoy = new Date().toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'});
+  const txt =
+    '📦 Reporte del día — ' + fechaHoy + '\n' +
+    '────────────────────\n' +
+    '🚰 Bidones entregados: ' + hBid + '\n' +
+    '🪣 Vacíos recuperados: ' + hVac + '\n' +
+    '💵 Efectivo:           ' + fmt(hPagCash) + '\n' +
+    '💳 Transferencia:      ' + fmt(hPagTransfer) + '\n' +
+    '💰 Cobrado total:      ' + fmt(hPagTotal) + '\n' +
+    '👥 Clientes visitados: ' + hCli + '\n' +
+    '────────────────────\n' +
+    '🗃️ Stock actual: ' + DB.getStock() + ' bidones';
+  if(navigator.share) {
+    navigator.share({ title: 'Reporte del día', text: txt }).catch(()=>{});
+  } else {
+    const blob = new Blob([txt], {type:'text/plain'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'reporte-' + today + '.txt';
+    a.click();
+  }
+}
+
+// ── DETALLE CLIENTE ───────────────────────────────────────
+function openDetail(cid) {
+  const c=DB.clients.find(x=>x.id===cid); if(!c)return;
+  const cal=calcClient(cid), dp=c.dispensers||0, ym=thisMonthISO();
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  $('view-detail').classList.add('active');
+  $('detail-header-name').textContent=c.name;
+  $('view-detail').scrollTop=0;
+
+  // History
+  const alld=[
+    ...DB.deliveries.filter(d=>d.clientId===cid).map(d=>Object.assign({},d,{_type:'delivery'})),
+    ...DB.payments.filter(p=>p.clientId===cid).map(p=>Object.assign({},p,{_type:'payment'}))
+  ].sort((a,b)=>b.date.localeCompare(a.date));
+
+  const histHTML=!alld.length?'<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Sin movimientos aún.</div></div>':alld.map(h=>{
+    if(h._type==='delivery'){
+      const fl=h.freeLeft||0, pl=Math.max(0,(h.left||0)-fl), bc=pl*(h.price||0), ex=h.extraCharge||0, tot=bc+ex;
+      const isCuota=ex>0, icon=isCuota?'🫙':'🚰', cls=isCuota?'cuota':'delivery';
+      let desc='';
+      if(isCuota) desc='Cuota '+fmt(ex)+(h.left>0?' · '+h.left+' bid.':'');
+      else desc=(h.left>0?h.left+' bid. entregados':'')+(h.taken>0?' · '+h.taken+' vacíos':'');
+      if(h.note&&h.note!=='Saldo inicial bidones'&&h.note!=='Saldo inicial deuda') desc+=' · '+h.note;
+      return '<div class="hist-item"><div class="hist-icon '+cls+'">'+icon+'</div>'+
+        '<div class="hist-body"><div class="hist-type '+cls+'">'+(isCuota?'Cuota mensual':'Entrega')+'</div>'+
+        '<div class="hist-desc">'+(desc||h.note||'Sin detalle')+'</div><div class="hist-date">'+fmtDate(h.date)+'</div></div>'+
+        '<div class="hist-right"><span class="hist-amount charge">-'+fmt(tot)+'</span>'+
+        '<button class="del-btn" onclick="confirmDelete(\'delivery\',\''+h.id+'\',\''+cid+'\')">🗑</button></div></div>';
+    } else {
+      return '<div class="hist-item"><div class="hist-icon payment">💰</div>'+
+        '<div class="hist-body"><div class="hist-type payment">Pago</div>'+
+        '<div class="hist-desc">'+(h.method||'Efectivo')+(h.note?' · '+h.note:'')+'</div><div class="hist-date">'+fmtDate(h.date)+'</div></div>'+
+        '<div class="hist-right"><span class="hist-amount paid">+'+fmt(h.amount)+'</span>'+
+        '<button class="del-btn" onclick="confirmDelete(\'payment\',\''+h.id+'\',\''+cid+'\')">🗑</button></div></div>';
+    }
+  }).join('');
+
+  // Dispenser pricing card (lógica nueva: $6.000/bidón fijo)
+  let dmh='';
+  if(dp>0){
+    const mBid=DB.deliveries.filter(d=>d.clientId===cid&&(d.date||'').startsWith(ym)).reduce((s,d)=>s+(d.left||0),0);
+    const mFact=mBid*PRICES.dispenserPerUnit;
+    const mPag=DB.payments.filter(p=>p.clientId===cid&&(p.date||'').startsWith(ym)).reduce((s,p)=>s+(p.amount||0),0);
+    const saldoCls = cal.debt>0 ? 'debt' : cal.debt<0 ? 'credit' : 'ok';
+    const saldoLbl = cal.debt>0 ? 'Saldo pendiente' : cal.debt<0 ? 'Saldo a favor' : 'Al día';
+    dmh='<div class="disp-month-card">'+
+      '<div class="disp-month-title">🫙 Cliente con dispenser · '+fmt(PRICES.dispenserPerUnit)+'/bidón</div>'+
+      '<div class="disp-saldo-row disp-saldo-'+saldoCls+'">'+
+        '<div>'+
+          '<div style="font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;">'+saldoLbl+'</div>'+
+          '<div class="disp-saldo-val disp-saldo-'+saldoCls+'-val">'+fmt(Math.abs(cal.debt))+'</div>'+
+        '</div>'+
+        '<div style="text-align:right;font-size:11px;color:var(--text-muted);">'+
+          '<div>🔴 en tiempo real</div>'+
+          '<div style="margin-top:2px;">incluye este mes</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="disp-month-breakdown">'+
+        '<div><span>📅 Este mes</span><strong>'+mBid+' bid. · '+fmt(mFact)+'</strong></div>'+
+        '<div><span>💰 Cobrado mes</span><strong>'+fmt(mPag)+'</strong></div>'+
+      '</div>'+
+      '</div>';
+  }
+
+  // Timer card
+  let timerCard='';
+  if(dp>0){
+    const days=calcDaysLeft(c), cls=timerClass(days);
+    let timerLabel, timerSub;
+    if(days===null){ timerLabel='--'; timerSub='Sin fecha de inicio configurada'; }
+    else if(days<=0){ timerLabel='VENCIDO'; timerSub='Vencido hace '+Math.abs(days)+' día'+(Math.abs(days)!==1?'s':''); }
+    else { timerLabel=days+'d'; timerSub='Vence el '+fmtDate(addDays(c.subscriptionStart,30)); }
+    const startInfo = c.subscriptionStart ? 'Inició el '+fmtDate(c.subscriptionStart) : 'Tocá para configurar';
+    timerCard='<div class="timer-detail-card '+cls+'" onclick="openSubModal(\''+cid+'\')">'+
+      '<div class="timer-big '+cls+'">'+timerLabel+'</div>'+
+      '<div class="timer-detail-info">'+
+        '<div class="timer-detail-label '+cls+'">⏱ PERÍODO DE SUSCRIPCIÓN</div>'+
+        '<div class="timer-detail-sub">'+timerSub+'</div>'+
+        '<div class="timer-detail-sub">'+startInfo+'</div>'+
+      '</div>'+
+      '<div class="timer-edit-btn">✏️ Editar</div>'+
+    '</div>';
+  }
+
+  const di=dp>0?(c.address?'<div class="detail-info">📍 '+c.address+'</div>':'')+
+    '<div class="disp-badge">🫙 '+dp+' dispenser'+(dp>1?'s':'')+' · '+fmt(PRICES.dispenserPerUnit)+'/bidón</div>':
+    (c.address?'<div class="detail-info">📍 '+c.address+'</div>':'');
+
+  $('detail-content').innerHTML=
+    '<div class="detail-hero '+(dp>0?'disp-hero':'')+'">'+
+      '<div class="detail-avatar">'+initials(c.name)+'</div>'+
+      '<div class="detail-name">'+c.name+'</div>'+
+      (c.phone?'<div class="detail-info">📞 '+c.phone+'</div>':'')+di+
+      (c.notes?'<div class="detail-info">📝 '+c.notes+'</div>':'')+
+    '</div>'+
+    '<div class="stats-grid">'+
+      '<div class="stat-box '+(cal.debt<0?'stat-total':'stat-debt')+'"><div class="stat-val">'+fmt(Math.abs(cal.debt))+'</div><div class="stat-lbl">'+(cal.debt>0?'Deuda':cal.debt<0?'✅ A favor':'Sin deuda')+'</div></div>'+
+      '<div class="stat-box stat-stock"><div class="stat-val">'+cal.stock+'</div><div class="stat-lbl">Bidones en casa</div></div>'+
+      '<div class="stat-box"><div class="stat-val" style="font-size:18px">'+fmt(cal.totalCharged)+'</div><div class="stat-lbl">Facturado</div></div>'+
+      '<div class="stat-box stat-total"><div class="stat-val" style="font-size:18px">'+fmt(cal.totalPaid)+'</div><div class="stat-lbl">Cobrado</div></div>'+
+    '</div>'+
+    timerCard+dmh+
+    '<div class="action-row" style="padding-top:4px">'+
+      '<button class="act-btn btn-blue" onclick="openDeliveryModal(\''+cid+'\')">🚰 Entrega</button>'+
+      '<button class="act-btn btn-green" onclick="openPaymentModal(\''+cid+'\')">💰 Pago</button>'+
+    '</div>'+
+    '<div class="action-row" style="padding-top:0">'+
+      '<button class="act-btn btn-gray" onclick="editClient(\''+cid+'\')">✏️ Editar</button>'+
+      (c.phone?'<button class="act-btn btn-gray" onclick="window.open(\'tel:'+c.phone+'\')">📞 Llamar</button>':'<button class="act-btn btn-gray" style="opacity:.4" disabled>📞 Sin teléfono</button>')+
+    '</div>'+
+    '<div class="sec-title">Historial de movimientos</div>'+
+    '<div class="history-container">'+histHTML+'</div>';
+}
+
+function addDays(dateStr, n) {
+  if(!dateStr) return '';
+  const d=new Date(dateStr); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10);
+}
+
+// ── MODAL CUOTA ───────────────────────────────────────────
+function openCuotaModal(cid) {
+  const c=DB.clients.find(x=>x.id===cid); if(!c)return;
+  const dp=c.dispensers||0, ym=thisMonthISO(), ms=getMonthStats(cid,ym);
+  const charge=calcMonthlyCharge(ms.rawBidones,dp);  // usa total real, no el visual
+  const threshold=PRICES.dispenserThreshold*dp;
+  $('cuota-client-id').value=cid;
+  $('cuota-date').value=todayISO();
+  $('cuota-method').value='Efectivo';
+  $('cuota-note').value='';
+  $('cuota-preview').innerHTML=
+    '<div class="charge-preview">'+
+      '<div class="charge-preview-label">Monto a cobrar este mes</div>'+
+      '<div class="charge-preview-amount">'+fmt(charge)+'</div>'+
+      '<div class="charge-preview-detail">'+
+        (ms.rawBidones<=threshold?
+          ms.rawBidones+' bid. entregados (≤ '+threshold+') → cuota fija':
+          ms.rawBidones+' bid. entregados (> '+threshold+') × '+fmt(PRICES.dispenserPerUnit))+
+      '</div>'+
+    '</div>'+
+    (ms.cuotaCobrada?'<div style="background:#fee2e2;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:#dc2626;font-weight:600;">⚠️ Ya se registró una cuota este mes ('+fmt(ms.cuotaTotal)+'). ¿Querés registrar otra?</div>':'');
+  openModal('modal-cuota');
+}
+
+function saveCuota() {
+  const cid=$('cuota-client-id').value;
+  const c=DB.clients.find(x=>x.id===cid); if(!c)return;
+  const dp=c.dispensers||0, ym=thisMonthISO(), ms=getMonthStats(cid,ym);
+  const charge=calcMonthlyCharge(ms.rawBidones,dp);  // total real, no visual
+  const ds=DB.deliveries;
+  ds.push({id:DB.id(),clientId:cid,date:$('cuota-date').value||todayISO(),left:0,taken:0,price:0,extraCharge:charge,freeLeft:0,note:'Cuota mensual '+ym.slice(5)+($('cuota-note').value?' · '+$('cuota-note').value:'')});
+  DB.save('deliveries',ds);
+  // Actualizar subscriptionStart al día de pago
+  const clients=DB.clients, idx=clients.findIndex(x=>x.id===cid);
+  if(idx>=0){clients[idx].subscriptionStart=$('cuota-date').value||todayISO(); DB.save('clients',clients);}
+  closeModal('modal-cuota');
+  showToast('✅ Cuota '+fmt(charge)+' registrada · Timer reiniciado');
+  openDetail(cid);
+  $('view-detail').classList.add('active');
+  document.querySelectorAll('.view:not(#view-detail)').forEach(v=>v.classList.remove('active'));
+}
+
+// ── MODAL SUSCRIPCIÓN (TIMER) ─────────────────────────────
+function openSubModal(cid) {
+  const c=DB.clients.find(x=>x.id===cid); if(!c)return;
+  $('sub-client-id').value=cid;
+  $('sub-start-date').value=c.subscriptionStart||todayISO();
+  updateSubCalc();
+  $('sub-preview').innerHTML='<strong style="display:block;margin-bottom:4px;">'+c.name+'</strong>Modificá la fecha en que pagó la última cuota. El timer se calcula automáticamente desde ese día.';
+  openModal('modal-sub');
+}
+
+function updateSubCalc() {
+  const date=$('sub-start-date').value;
+  if(!date){$('sub-calc').innerHTML='';return;}
+  const days=30-Math.floor((new Date(todayISO())-new Date(date))/86400000);
+  const vence=addDays(date,30);
+  const cls=timerClass(days);
+  const colors={ok:'#15803d',warn:'#92400e',urgent:'#dc2626',overdue:'#dc2626',none:'#64748b'};
+  $('sub-calc').innerHTML=
+    '<div style="color:'+colors[cls]+';font-weight:700;font-size:18px;margin-bottom:4px;">'+(days<=0?'Vencido hace '+Math.abs(days)+'d':days+' días restantes')+'</div>'+
+    '<div style="font-size:13px;color:var(--text-muted);">Inició: '+fmtDate(date)+' · Vence: '+fmtDate(vence)+'</div>';
+}
+
+function saveSubDate() {
+  const cid=$('sub-client-id').value, date=$('sub-start-date').value;
+  if(!date){showToast('❌ Seleccioná una fecha');return;}
+  const clients=DB.clients, idx=clients.findIndex(c=>c.id===cid);
+  if(idx>=0){clients[idx].subscriptionStart=date; DB.save('clients',clients);}
+  closeModal('modal-sub');
+  showToast('✅ Timer actualizado');
+  openDetail(cid);
+  $('view-detail').classList.add('active');
+  document.querySelectorAll('.view:not(#view-detail)').forEach(v=>v.classList.remove('active'));
+}
+
+// ── MODAL CLIENTES ────────────────────────────────────────
+function openModal(id){$(id).classList.add('open');}
+function closeModal(id){$(id).classList.remove('open');}
+function overlayClose(e,id){if(e.target.classList.contains('overlay'))closeModal(id);}
+function selectDisp(v){document.querySelectorAll('.disp-opt').forEach(el=>el.classList.toggle('selected',parseInt(el.dataset.val)===v));$('client-dispensers').value=v;}
+function selectDay(v){document.querySelectorAll('.day-opt').forEach(el=>el.classList.toggle('selected',parseInt(el.dataset.val)===v));$('client-day').value=v;}
+const DAY_LABELS=['Sin día','Lun','Mar','Mié','Jue','Vie'];
+const DAY_FULL=['Sin día asignado','Lunes','Martes','Miércoles','Jueves','Viernes'];
+
+// ── BÚSQUEDA DE DIRECCIÓN (Geocoding API) ─────────────────
+let _acResults = [], _acTimer = null;
+window._mapsReady = () => {}; // no-op, no usamos Maps JS
+
+async function onAddressInput(val) {
+  clearTimeout(_acTimer);
+  $('client-lat').value = '';
+  $('client-lng').value = '';
+  if(val.length < 5) { hideAddressDd(); return; }
+  _acTimer = setTimeout(async () => {
+    try {
+      const url = 'https://maps.googleapis.com/maps/api/geocode/json?address='
+        + encodeURIComponent(val + ', Argentina')
+        + '&key=' + MAPS_KEY;
+      const r = await fetch(url);
+      const d = await r.json();
+      if(d.status !== 'OK' || !d.results || !d.results.length) { hideAddressDd(); return; }
+      _acResults = d.results.slice(0, 5);
+      const dd = $('address-dropdown');
+      dd.innerHTML = _acResults.map((res, i) => {
+        // Mostrar calle+número como título y ciudad como subtítulo
+        const parts = res.formatted_address.split(',');
+        const main = parts[0] || res.formatted_address;
+        const sub  = parts.slice(1).join(',').trim();
+        return '<div class="address-dd-item" onpointerdown="event.preventDefault();selectAddr('+i+')">'
+          + '<strong>' + main + '</strong>'
+          + (sub ? '<br><span style="color:var(--text-muted);font-size:12px;">' + sub + '</span>' : '')
+          + '</div>';
+      }).join('');
+      dd.style.display = 'block';
+    } catch(e) { hideAddressDd(); }
+  }, 700);
+}
+
+function hideAddressDd() {
+  const dd = $('address-dropdown');
+  if(dd) { dd.style.display='none'; dd.innerHTML=''; }
+}
+
+function selectAddr(i) {
+  const res = _acResults[i]; if(!res) return;
+  const parts = res.formatted_address.split(',');
+  $('client-address').value = parts[0].trim(); // solo calle+número, sin ciudad
+  $('client-lat').value = res.geometry.location.lat;
+  $('client-lng').value = res.geometry.location.lng;
+  hideAddressDd();
+}
+
+function openAddClient(){
+  $('add-client-title').textContent='➕ Nuevo Cliente';
+  $('edit-client-id').value='';
+  $('client-name').value=$('client-phone').value=$('client-address').value=$('client-notes').value='';
+  $('client-lat').value='';$('client-lng').value='';
+  $('btn-delete-client').style.display='none';
+  hideAddressDd();selectDisp(0);selectDay(0);openModal('modal-add-client');
+}
+function editClient(cid){
+  const c=DB.clients.find(x=>x.id===cid);if(!c)return;
+  $('add-client-title').textContent='✏️ Editar Cliente';$('edit-client-id').value=cid;
+  $('client-name').value=c.name||'';$('client-phone').value=c.phone||'';$('client-address').value=c.address||'';$('client-notes').value=c.notes||'';
+  $('client-lat').value=c.lat||'';$('client-lng').value=c.lng||'';
+  $('btn-delete-client').style.display='';
+  hideAddressDd();selectDisp(c.dispensers||0);selectDay(c.dayOfWeek||0);openModal('modal-add-client');
+}
+function deleteFromEdit(){
+  const cid=$('edit-client-id').value; if(!cid) return;
+  closeModal('modal-add-client');
+  confirmDeleteClient(cid);
+}
+async function geocodeAddress(address) {
+  if(!address) return null;
+  try {
+    const r = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address='+encodeURIComponent(address)+'&key='+MAPS_KEY);
+    const d = await r.json();
+    if(d.status==='OK' && d.results && d.results.length)
+      return d.results[0].geometry.location; // {lat, lng}
+  } catch(e) {}
+  return null;
+}
+
+async function saveClient(){
+  const name=$('client-name').value.trim();if(!name){showToast('❌ El nombre es obligatorio');return;}
+  const eid=$('edit-client-id').value;
+  const address=$('client-address').value.trim();
+  const latVal=parseFloat($('client-lat').value)||null;
+  const lngVal=parseFloat($('client-lng').value)||null;
+  const data={name,phone:$('client-phone').value.trim(),address,dispensers:parseInt($('client-dispensers').value)||0,dayOfWeek:parseInt($('client-day').value)||0,notes:$('client-notes').value.trim()};
+  if(latVal&&lngVal){
+    // Coordenadas capturadas desde Places — no hace falta geocodificar
+    data.lat=latVal; data.lng=lngVal;
+  } else if(address){
+    // Fallback: geocodificar si el usuario escribió manualmente sin elegir sugerencia
+    const geo=await geocodeAddress(address);
+    if(geo){data.lat=geo.lat;data.lng=geo.lng;}
+  }
+  const cs=DB.clients;
+  if(eid){const i=cs.findIndex(c=>c.id===eid);if(i>=0)cs[i]=Object.assign({},cs[i],data);DB.save('clients',cs);closeModal('modal-add-client');showToast('✅ Cliente actualizado');openDetail(eid);$('view-detail').classList.add('active');document.querySelectorAll('.view:not(#view-detail)').forEach(v=>v.classList.remove('active'));}
+  else{cs.push(Object.assign({id:DB.id()},data,{createdAt:todayISO()}));DB.save('clients',cs);closeModal('modal-add-client');showToast('✅ Cliente agregado');renderClients();}
+}
+
+// ── MODAL ENTREGA ─────────────────────────────────────────
+function openDeliveryModal(cid){
+  const c=DB.clients.find(x=>x.id===cid);if(!c)return;
+  const dp=c.dispensers||0;
+  $('delivery-client-id').value=cid;
+  $('delivery-left').value=$('delivery-taken').value=$('delivery-note').value='';
+  $('delivery-date').value=todayISO();
+  $('delivery-total-val').textContent='$0';$('delivery-breakdown').textContent='';
+  if(dp>0){
+    // Lógica nueva: $6.000 por bidón, sin cuota ni umbral.
+    $('normal-price-row').style.display='none';
+    $('delivery-price').value=PRICES.dispenserPerUnit;
+    $('disp-delivery-info').innerHTML='<div class="info-box">'+
+      '<strong>🫙 Cliente con dispenser ('+dp+')</strong>'+
+      '<div style="font-size:13px;color:#6d28d9;">Precio fijo: '+fmt(PRICES.dispenserPerUnit)+' por bidón.</div>'+
+    '</div>';
+  }else{
+    $('normal-price-row').style.display='';
+    $('delivery-price').value=PRICES.normal;
+    $('disp-delivery-info').innerHTML='';
+  }
+  openModal('modal-delivery');
+}
+
+function calcDeliveryTotal(){
+  const cid=$('delivery-client-id').value,c=DB.clients.find(x=>x.id===cid);if(!c)return;
+  const dp=c.dispensers||0,left=parseInt($('delivery-left').value)||0;
+  const price = dp>0 ? PRICES.dispenserPerUnit : (parseFloat($('delivery-price').value)||0);
+  $('delivery-total-val').textContent=fmt(left*price);
+  $('delivery-breakdown').textContent=left>0?left+' × '+fmt(price):'';
+}
+
+function saveDelivery(){
+  const cid=$('delivery-client-id').value,c=DB.clients.find(x=>x.id===cid),dp=(c||{}).dispensers||0;
+  const left=parseInt($('delivery-left').value)||0,taken=parseInt($('delivery-taken').value)||0;
+  if(!left&&!taken){showToast('❌ Ingresá al menos un valor');return;}
+  const ds=DB.deliveries;
+  // Lógica nueva: cada bidón se cobra en la entrega
+  const price = dp>0 ? PRICES.dispenserPerUnit : (parseFloat($('delivery-price').value)||PRICES.normal);
+  const freeLeft = 0;
+  ds.push({id:DB.id(),clientId:cid,left,taken,price,freeLeft,extraCharge:0,date:$('delivery-date').value||todayISO(),loggedAt:todayISO(),note:$('delivery-note').value.trim()});
+  DB.save('deliveries',ds);closeModal('modal-delivery');showToast('✅ Entrega registrada');
+  openDetail(cid);$('view-detail').classList.add('active');document.querySelectorAll('.view:not(#view-detail)').forEach(v=>v.classList.remove('active'));
+}
+
+// ── MODAL PAGO ────────────────────────────────────────────
+function openPaymentModal(cid){
+  const cal=calcClient(cid);
+  $('payment-client-id').value=cid;$('payment-amount').value=cal.debt>0?cal.debt:'';
+  $('payment-method').value='Efectivo';$('payment-date').value=todayISO();$('payment-note').value='';
+  $('payment-current-debt').textContent=fmt(cal.debt);openModal('modal-payment');
+}
+function savePayment(){
+  const cid=$('payment-client-id').value,amount=parseFloat($('payment-amount').value)||0;
+  if(amount<=0){showToast('❌ Ingresá un monto válido');return;}
+  const ps=DB.payments;
+  ps.push({id:DB.id(),clientId:cid,amount,method:$('payment-method').value,date:$('payment-date').value||todayISO(),loggedAt:todayISO(),note:$('payment-note').value.trim()});
+  DB.save('payments',ps);closeModal('modal-payment');showToast('✅ Pago registrado');
+  openDetail(cid);$('view-detail').classList.add('active');document.querySelectorAll('.view:not(#view-detail)').forEach(v=>v.classList.remove('active'));
+}
+
+// ── BORRAR ────────────────────────────────────────────────
+let pd=null;
+function confirmDelete(t,id,cid){if(userRole==='repartidor')return;pd={type:t,id,clientId:cid};$('confirm-title').textContent=t==='delivery'?'Borrar entrega':'Borrar pago';$('confirm-msg').textContent='¿Querés eliminar este movimiento?';$('confirm-dialog').classList.add('open');}
+function confirmDeleteClient(cid){if(userRole==='repartidor')return;const c=DB.clients.find(x=>x.id===cid);pd={type:'client',id:cid};$('confirm-title').textContent='Borrar cliente';$('confirm-msg').textContent='¿Eliminar a "'+c.name+'" y todo su historial?';$('confirm-dialog').classList.add('open');}
+function closeConfirm(){$('confirm-dialog').classList.remove('open');pd=null;}
+$('confirm-yes-btn').onclick=function(){
+  if(!pd)return;
+  if(pd.type==='delivery'){const rcid=pd.clientId,rid=pd.id;DB.save('deliveries',DB.deliveries.filter(d=>d.id!==rid));closeConfirm();showToast('🗑 Eliminado');openDetail(rcid);$('view-detail').classList.add('active');document.querySelectorAll('.view:not(#view-detail)').forEach(v=>v.classList.remove('active'));}
+  else if(pd.type==='payment'){const rcid=pd.clientId,rid=pd.id;DB.save('payments',DB.payments.filter(p=>p.id!==rid));closeConfirm();showToast('🗑 Eliminado');openDetail(rcid);$('view-detail').classList.add('active');document.querySelectorAll('.view:not(#view-detail)').forEach(v=>v.classList.remove('active'));}
+  else{const rid=pd.id;DB.save('clients',DB.clients.filter(c=>c.id!==rid));DB.save('deliveries',DB.deliveries.filter(d=>d.clientId!==rid));DB.save('payments',DB.payments.filter(p=>p.clientId!==rid));closeConfirm();showToast('🗑 Cliente eliminado');goBack();renderClients();}
+};
+
+// ── RUTA DEL DÍA ─────────────────────────────────────────
+function haversine(la1,lo1,la2,lo2){
+  const R=6371,dL=(la2-la1)*Math.PI/180,dO=(lo2-lo1)*Math.PI/180;
+  const a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function nearestNeighbor(pts,sLat,sLng){
+  const rem=[...pts],route=[];
+  let cLat=sLat,cLng=sLng;
+  while(rem.length){
+    let best=-1,bestD=Infinity;
+    rem.forEach((p,i)=>{const d=haversine(cLat,cLng,p.lat,p.lng);if(d<bestD){bestD=d;best=i;}});
+    const nx=rem.splice(best,1)[0];
+    route.push(Object.assign({},nx,{dist:bestD}));
+    cLat=nx.lat;cLng=nx.lng;
+  }
+  return route;
+}
+
+function buildMapsUrl(route){
+  if(!route.length) return 'https://maps.google.com';
+  const addr=p=>p.address||(p.lat+','+p.lng);
+  if(route.length===1) return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(addr(route[0]));
+  const origin=encodeURIComponent(addr(route[0]));
+  const dest=encodeURIComponent(addr(route[route.length-1]));
+  const wps=route.slice(1,-1).map(p=>encodeURIComponent(addr(p))).join('|');
+  return 'https://www.google.com/maps/dir/?api=1&origin='+origin+'&destination='+dest+(wps?'&waypoints='+wps:'');
+}
+
+function renderRuta(){
+  const body=$('ruta-body');
+  const pts=DB.clients.filter(c=>c.lat&&c.lng);
+  if(!pts.length){
+    body.innerHTML='<div class="empty"><div class="empty-icon">🗺️</div><div class="empty-text">Ningún cliente tiene coordenadas aún.<br><br>Editá tus clientes y guardá su dirección — la app la geocodifica automáticamente.</div></div>';
+    return;
+  }
+  body.innerHTML='<div class="empty"><div class="empty-icon">📍</div><div class="empty-text">Obteniendo tu ubicación...</div></div>';
+  const totalClients=DB.clients.filter(c=>c.address).length;
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const{latitude:la,longitude:lo}=pos.coords;
+      const route=nearestNeighbor(pts,la,lo);
+      renderRutaResult(route,true,totalClients);
+    },
+    ()=>{
+      // Sin GPS: empezar desde el primer punto
+      const route=nearestNeighbor(pts,pts[0].lat,pts[0].lng);
+      renderRutaResult(route,false,totalClients);
+    },
+    {timeout:6000,enableHighAccuracy:false}
+  );
+}
+
+function renderRutaResult(route,hasGPS,totalClients){
+  const body=$('ruta-body');
+  const totalDist=route.reduce((s,p)=>s+p.dist,0);
+  const mapsUrl=buildMapsUrl(route);
+  const noGeo=totalClients-route.length;
+  body.innerHTML=
+    '<div class="ruta-header">'+
+      '<button class="btn-maps" onclick="window.open(\''+mapsUrl+'\',\'_blank\')">📍 Abrir ruta en Google Maps</button>'+
+      '<div style="font-size:13px;color:var(--text-muted);margin-bottom:6px;">'+
+        '✅ '+route.length+' paradas · ~'+totalDist.toFixed(1)+' km total'+(hasGPS?' · Desde tu ubicación':'')+
+      '</div>'+
+      (noGeo>0?'<div style="font-size:12px;color:#f59e0b;background:#fffbeb;border-radius:8px;padding:8px 10px;margin-bottom:8px;">⚠️ '+noGeo+' cliente'+(noGeo>1?'s':'')+' sin coordenadas — editá su dirección para incluirlos.</div>':'')+
+    '</div>'+
+    '<div style="padding:0 14px;">'+
+    route.map((c,i)=>
+      '<div class="ruta-card">'+
+        '<div class="ruta-num">'+(i+1)+'</div>'+
+        '<div style="flex:1;min-width:0;">'+
+          '<div style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+c.name+'</div>'+
+          '<div class="ruta-addr">📍 '+(c.address||'')+'</div>'+
+          (i>0?'<div class="ruta-dist">~'+c.dist.toFixed(1)+' km desde parada anterior</div>':
+               '<div class="ruta-dist">'+(hasGPS?'Más cercano a vos':'Primer punto')+'</div>')+
+        '</div>'+
+        (c.phone?'<button onclick="window.open(\'tel:'+c.phone+'\')" style="background:var(--primary-light);border:none;border-radius:8px;padding:8px 10px;font-size:18px;cursor:pointer;flex-shrink:0;">📞</button>':'')+
+      '</div>'
+    ).join('')+
+    '</div>';
+}
+
+// ── TOAST ─────────────────────────────────────────────────
+let tt;function showToast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2500);}
+
+// ── PWA ───────────────────────────────────────────────────
+let dp2=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp2=e;if(!localStorage.getItem('pwa_dismissed'))$('install-banner').classList.remove('hidden');});
+$('install-btn').onclick=async()=>{if(!dp2)return;dp2.prompt();const{outcome}=await dp2.userChoice;dp2=null;$('install-banner').classList.add('hidden');if(outcome==='accepted')showToast('✅ App instalada!');};
+function dismissInstall(){$('install-banner').classList.add('hidden');localStorage.setItem('pwa_dismissed','1');}
+window.addEventListener('appinstalled',()=>{$('install-banner').classList.add('hidden');showToast('✅ App instalada!');});
+
+const SEED_CLIENTS = [{"id": "imp000xaji0y", "name": "Miguel Endrique", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp001ahxthv", "name": "Gladys", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp00230t9nt", "name": "Soledad Ferreyra", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp003wnnhj7", "name": "Elena Enrique", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp004ibljh7", "name": "Traiko Enrique", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp005jiujv6", "name": "Carlos Ferreyra", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0069t84az", "name": "Daiana Enrique", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp00765kxvf", "name": "Tomy", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp008a753lc", "name": "Polo", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp009pht0hl", "name": "Marta Amarilla", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp010mvihcw", "name": "Juana", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp011he7ur2", "name": "Sosa Enriquez", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0120y9dom", "name": "Karen", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp01394874f", "name": "Quique", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp014j2qp89", "name": "Tito Almacen", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp015f8cgvy", "name": "Samanta estevez", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp016ioykl1", "name": "Obregon", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0174zw9xa", "name": "Guillermo", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp018wjr64d", "name": "CRESER", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0196t4ufe", "name": "Dora", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp020f75935", "name": "Joni", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp021i3qk2i", "name": "pachu", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0228g8jdp", "name": "Maria", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0230yncxl", "name": "dario", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0246wktak", "name": "fernanda", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp025r62gds", "name": "Antonella", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp026owgzri", "name": "milagros", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp027q2y9v8", "name": "gaito guillermo", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0281swjck", "name": "Marcela", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp029p6vz41", "name": "Valeria", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp030pbmyof", "name": "cristina", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp031hl1n13", "name": "Bety", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp032jcat9m", "name": "analia", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp033z1gv0e", "name": "luciana", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp034d14ve9", "name": "claudio", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp035zp08j3", "name": "blanca", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp036nb4gh2", "name": "erika", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp037r2dhyl", "name": "ezequiel", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp038zjjege", "name": "Poly", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp039gatj9t", "name": "almacen pepe", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0403ocwbf", "name": "lorena benitez", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0412isqp4", "name": "marcela", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp042aqvkiz", "name": "Pele", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0433cfl0u", "name": "Sandra", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp044d84u89", "name": "Ana", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp045mly4ly", "name": "Graciela", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp046togn1w", "name": "Riki", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp047td96qe", "name": "veronica", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0483rzsj4", "name": "braian", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp04955j2o7", "name": "rosa", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp050qlgzui", "name": "las violetas", "phone": "", "address": "", "dispensers": 2, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp051v55psq", "name": "Nico Vucetich 1035", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp052nlz15b", "name": "choi", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp053dw5py6", "name": "ezequiel perez", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp054u2gc5w", "name": "Johana", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp055mvxpj4", "name": "lore bucetich", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp056y0bvr6", "name": "master", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp057xlpu0d", "name": "violeta", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp05830me8f", "name": "alejandra", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp059yv37di", "name": "Alejandra fernandez", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp060krd5eq", "name": "Vanesa  García 557", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp061np84dy", "name": "angel", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0622ieuc1", "name": "Jenifer", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp063xaa2il", "name": "Diego roger", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp06425sq8c", "name": "Braian estevez", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp065l9tqvd", "name": "Braian rojas", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp066pxnf7c", "name": "celeste", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp06715z8vm", "name": "Daniel", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp068n1u349", "name": "Matías", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0695uofwb", "name": "taller enfrente", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0701udbfw", "name": "Laura maiolino", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp071ybovak", "name": "David Aristiqui", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp072c5ba75", "name": "Brenda Vucetich 1362", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0734ivsol", "name": "Alejandro paez", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0746m033i", "name": "juanchi m. Acosta 1169", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0751r11q7", "name": "celeste mzna. 7 Casa 140", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp076lqc3c5", "name": "Valeria montenegro", "phone": "", "address": "", "dispensers": 1, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp077fcd6mz", "name": "Verónica Vucetich 1200", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp078fnkomv", "name": "chino Cardenas", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp079fm8zov", "name": "soledad Aristiqui García 360", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp08030ysxp", "name": "Nadia Ayala", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp08145bm1e", "name": "Lujan jara mzna. 5", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0820qtl3q", "name": "Aylin", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp083jx5td4", "name": "pulga", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp084p8hqma", "name": "Zulema mzna. 6 casa 97", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0853zezqa", "name": "pañalera maty", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp086ekkbp2", "name": "mama de Aylin", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp087xd9css", "name": "Luis aristiqui", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp088ja2m0w", "name": "Maru mzna 5 casa 97", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp089c1qkbh", "name": "Ezequiel hijo de ana", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}, {"id": "imp0901gm25l", "name": "Michel Laprida 1195", "phone": "", "address": "", "dispensers": 0, "notes": "", "createdAt": "2026-04-01"}]; const SEED_DELIVERIES = [{"id": "imp10006dpbhs", "clientId": "imp000xaji0y", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp10013a3zmf", "clientId": "imp001ahxthv", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp20018mdd4v", "clientId": "imp001ahxthv", "left": 1, "taken": 1, "price": 48000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp10023w5uzb", "clientId": "imp00230t9nt", "left": 3, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 3, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2002ikcidk", "clientId": "imp00230t9nt", "left": 1, "taken": 1, "price": 15000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1003xvg0fn", "clientId": "imp003wnnhj7", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp20039xuy41", "clientId": "imp003wnnhj7", "left": 1, "taken": 1, "price": 10000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp10045lxo6q", "clientId": "imp004ibljh7", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp1005oh9sdb", "clientId": "imp005jiujv6", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2005dw2pcn", "clientId": "imp005jiujv6", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1006ytjxep", "clientId": "imp0069t84az", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2006q85jsg", "clientId": "imp0069t84az", "left": 1, "taken": 1, "price": 25000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp10071t2tal", "clientId": "imp00765kxvf", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp100858drc1", "clientId": "imp008a753lc", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp20081ertj5", "clientId": "imp008a753lc", "left": 1, "taken": 1, "price": 25000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp10099xpsei", "clientId": "imp009pht0hl", "left": 3, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 3, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp1010i64ciy", "clientId": "imp010mvihcw", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp10113gdppq", "clientId": "imp011he7ur2", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp10125igqpk", "clientId": "imp0120y9dom", "left": 4, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 4, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2012i7p5tb", "clientId": "imp0120y9dom", "left": 1, "taken": 1, "price": 51000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1013rhocn9", "clientId": "imp01394874f", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp1014uzfk8u", "clientId": "imp014j2qp89", "left": 5, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 5, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2014t0cvs4", "clientId": "imp014j2qp89", "left": 1, "taken": 1, "price": 24000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1015ie6ivw", "clientId": "imp015f8cgvy", "left": 3, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 3, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2015pvs7hz", "clientId": "imp015f8cgvy", "left": 1, "taken": 1, "price": 40000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1016cq99ch", "clientId": "imp016ioykl1", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2016j755nf", "clientId": "imp016ioykl1", "left": 1, "taken": 1, "price": 36000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp10173kx7ee", "clientId": "imp0174zw9xa", "left": 3, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 3, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2017dtjvzh", "clientId": "imp0174zw9xa", "left": 1, "taken": 1, "price": 30000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1018pja1wj", "clientId": "imp018wjr64d", "left": 6, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 6, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp20180tpac5", "clientId": "imp018wjr64d", "left": 1, "taken": 1, "price": 41000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1019l6246h", "clientId": "imp0196t4ufe", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2019id25ow", "clientId": "imp0196t4ufe", "left": 1, "taken": 1, "price": 60000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1020a0l725", "clientId": "imp020f75935", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp20203j2d54", "clientId": "imp020f75935", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1021agl58k", "clientId": "imp021i3qk2i", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2021xo9t7e", "clientId": "imp021i3qk2i", "left": 1, "taken": 1, "price": 25000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp10220lvsnu", "clientId": "imp0228g8jdp", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2022jza7tz", "clientId": "imp0228g8jdp", "left": 1, "taken": 1, "price": 80000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1023l4zklo", "clientId": "imp0230yncxl", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2023okep7y", "clientId": "imp0230yncxl", "left": 1, "taken": 1, "price": 10000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1024puxqph", "clientId": "imp0246wktak", "left": 3, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 3, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp1025wm31yi", "clientId": "imp025r62gds", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2025hair4c", "clientId": "imp025r62gds", "left": 1, "taken": 1, "price": 60000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1026xa11dp", "clientId": "imp026owgzri", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2026g8sbi4", "clientId": "imp026owgzri", "left": 1, "taken": 1, "price": 48000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp10276wzs3t", "clientId": "imp027q2y9v8", "left": 3, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 3, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp202760rjiw", "clientId": "imp027q2y9v8", "left": 1, "taken": 1, "price": 10000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1028jlteiy", "clientId": "imp0281swjck", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2028zcotoh", "clientId": "imp0281swjck", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1029nam148", "clientId": "imp029p6vz41", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2029p0tvhh", "clientId": "imp029p6vz41", "left": 1, "taken": 1, "price": 15000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1030qewaou", "clientId": "imp030pbmyof", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2030axeqbn", "clientId": "imp030pbmyof", "left": 1, "taken": 1, "price": 66000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1032x2x18h", "clientId": "imp032jcat9m", "left": 3, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 3, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2032afeyuh", "clientId": "imp032jcat9m", "left": 1, "taken": 1, "price": 10000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp103338daly", "clientId": "imp033z1gv0e", "left": 4, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 4, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp20338ozcyw", "clientId": "imp033z1gv0e", "left": 1, "taken": 1, "price": 24000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp10342mpnsm", "clientId": "imp034d14ve9", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp203443d8w3", "clientId": "imp034d14ve9", "left": 1, "taken": 1, "price": 10000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1035trp0j4", "clientId": "imp035zp08j3", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp20353d5iqv", "clientId": "imp035zp08j3", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1036m5zja8", "clientId": "imp036nb4gh2", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2036dzr1yx", "clientId": "imp036nb4gh2", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1037urtp0l", "clientId": "imp037r2dhyl", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp1038t1ghr0", "clientId": "imp038zjjege", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp20389skdgi", "clientId": "imp038zjjege", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1039ze5r5u", "clientId": "imp039gatj9t", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2039qpgb7r", "clientId": "imp039gatj9t", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1040uk9e1v", "clientId": "imp0403ocwbf", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp10419kwv08", "clientId": "imp0412isqp4", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2041hhxfgc", "clientId": "imp0412isqp4", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1042zqy72w", "clientId": "imp042aqvkiz", "left": 3, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 3, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2042x7ptx6", "clientId": "imp042aqvkiz", "left": 1, "taken": 1, "price": 42000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1043keyz7s", "clientId": "imp0433cfl0u", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2043rcbplj", "clientId": "imp0433cfl0u", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1044yjb1qx", "clientId": "imp044d84u89", "left": 3, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 3, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp20446gvwrd", "clientId": "imp044d84u89", "left": 1, "taken": 1, "price": 55000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1045k83tql", "clientId": "imp045mly4ly", "left": 3, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 3, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2045l8os9x", "clientId": "imp045mly4ly", "left": 1, "taken": 1, "price": 42000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp10461ht7pz", "clientId": "imp046togn1w", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2046e9vift", "clientId": "imp046togn1w", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp10489itn7s", "clientId": "imp0483rzsj4", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp1049s3kkv9", "clientId": "imp04955j2o7", "left": 3, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 3, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2049rftmtt", "clientId": "imp04955j2o7", "left": 1, "taken": 1, "price": 24000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp10501b0z3n", "clientId": "imp050qlgzui", "left": 4, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 4, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2050x39rbs", "clientId": "imp050qlgzui", "left": 1, "taken": 1, "price": 30000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp10510oxfq8", "clientId": "imp051v55psq", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2051myx444", "clientId": "imp051v55psq", "left": 1, "taken": 1, "price": 48000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1052cw790p", "clientId": "imp052nlz15b", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp1053b2knft", "clientId": "imp053dw5py6", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp1054i6fqjj", "clientId": "imp054u2gc5w", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2054a26yfp", "clientId": "imp054u2gc5w", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1055hnriuu", "clientId": "imp055mvxpj4", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp20559k9xju", "clientId": "imp055mvxpj4", "left": 1, "taken": 1, "price": 15000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1056k2vmww", "clientId": "imp056y0bvr6", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2056yzx4w6", "clientId": "imp056y0bvr6", "left": 1, "taken": 1, "price": 10000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1057k0get8", "clientId": "imp057xlpu0d", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2057t63j3r", "clientId": "imp057xlpu0d", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1058840982", "clientId": "imp05830me8f", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2058n2atqy", "clientId": "imp05830me8f", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1059a5u6hc", "clientId": "imp059yv37di", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp205936kof8", "clientId": "imp059yv37di", "left": 1, "taken": 1, "price": 10000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1060y08p0f", "clientId": "imp060krd5eq", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2060odro8b", "clientId": "imp060krd5eq", "left": 1, "taken": 1, "price": 42000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1061t9moge", "clientId": "imp061np84dy", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp20614qxxva", "clientId": "imp061np84dy", "left": 1, "taken": 1, "price": 10000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1062hh5lf6", "clientId": "imp0622ieuc1", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2062a4fejg", "clientId": "imp0622ieuc1", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1063gb0s0r", "clientId": "imp063xaa2il", "left": 3, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 3, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp20632sds8b", "clientId": "imp063xaa2il", "left": 1, "taken": 1, "price": 84000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1064royr6c", "clientId": "imp06425sq8c", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2064cvcjwt", "clientId": "imp06425sq8c", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1065z4x1zh", "clientId": "imp065l9tqvd", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2065qimqod", "clientId": "imp065l9tqvd", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp10663dd03u", "clientId": "imp066pxnf7c", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2066vulemx", "clientId": "imp066pxnf7c", "left": 1, "taken": 1, "price": 10000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1067uhxid4", "clientId": "imp06715z8vm", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp10683wxa73", "clientId": "imp068n1u349", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2068jgzlma", "clientId": "imp068n1u349", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp10690hpmnz", "clientId": "imp0695uofwb", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp1070yjxrpj", "clientId": "imp0701udbfw", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp20701epkyr", "clientId": "imp0701udbfw", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1071hejla0", "clientId": "imp071ybovak", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2071gnzs43", "clientId": "imp071ybovak", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1072uuzpea", "clientId": "imp072c5ba75", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2072l2w37d", "clientId": "imp072c5ba75", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1073mlgses", "clientId": "imp0734ivsol", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp1074fhv1xg", "clientId": "imp0746m033i", "left": 3, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 3, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp1075uww5wf", "clientId": "imp0751r11q7", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2075cpkjcs", "clientId": "imp0751r11q7", "left": 1, "taken": 1, "price": 48000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp10764wsqt2", "clientId": "imp076lqc3c5", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp20766q3xlr", "clientId": "imp076lqc3c5", "left": 1, "taken": 1, "price": 84000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1077sgipps", "clientId": "imp077fcd6mz", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp10782xcdyk", "clientId": "imp078fnkomv", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp20780x65mu", "clientId": "imp078fnkomv", "left": 1, "taken": 1, "price": 20000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp20797ln23y", "clientId": "imp079fm8zov", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1080nngh8r", "clientId": "imp08030ysxp", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2080iec4d1", "clientId": "imp08030ysxp", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1081nf313f", "clientId": "imp08145bm1e", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2081poyipk", "clientId": "imp08145bm1e", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp10824n89qk", "clientId": "imp0820qtl3q", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2082ns832e", "clientId": "imp0820qtl3q", "left": 1, "taken": 1, "price": 10000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp10834k1j6f", "clientId": "imp083jx5td4", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp1084bsi9nb", "clientId": "imp084p8hqma", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp208474x2ek", "clientId": "imp084p8hqma", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1085cj4t0s", "clientId": "imp0853zezqa", "left": 3, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 3, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp1086qd6vas", "clientId": "imp086ekkbp2", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2086ifpwio", "clientId": "imp086ekkbp2", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp10879toqw9", "clientId": "imp087xd9css", "left": 2, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 2, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp108810lbt3", "clientId": "imp088ja2m0w", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp2088g2qzw3", "clientId": "imp088ja2m0w", "left": 1, "taken": 1, "price": 5000, "extraCharge": 0, "freeLeft": 0, "date": "2026-04-01", "note": "Saldo inicial deuda"}, {"id": "imp1089b7s9tj", "clientId": "imp089c1qkbh", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}, {"id": "imp1090en606n", "clientId": "imp0901gm25l", "left": 1, "taken": 0, "price": 0, "extraCharge": 0, "freeLeft": 1, "date": "2026-04-01", "note": "Saldo inicial bidones"}];
+
+// Mostrar "conectando" mientras carga Firebase
+$('clients-list').innerHTML='<div class="empty"><div class="empty-icon">💧</div><div class="empty-text">Conectando...</div></div>';
+
+// ── AUTH: Login / Logout / Roles ─────────────────────────
+let userRole = null; // "admin" | "repartidor"
+let dbListenerAttached = false;
+
+function showLoginScreen(){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  $('view-login').style.display = 'block';
+  $('view-login').classList.add('active');
+  $('login-error').classList.remove('show');
+  $('login-password').value = '';
+}
+function hideLoginScreen(){
+  $('view-login').style.display = 'none';
+  $('view-login').classList.remove('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  $('view-clientes').classList.add('active');
+  currentView = 'clientes';
+}
+function doLogin(){
+  const email = ($('login-email').value||'').trim();
+  const pass  = $('login-password').value||'';
+  if(!email || !pass){
+    $('login-error').textContent = 'Ingresá correo y contraseña.';
+    $('login-error').classList.add('show');
+    return;
+  }
+  $('login-btn').disabled = true;
+  $('login-btn').textContent = 'Ingresando…';
+  $('login-error').classList.remove('show');
+  firebase.auth().signInWithEmailAndPassword(email, pass)
+    .catch(err => {
+      let msg = 'Error al ingresar.';
+      if(err.code === 'auth/invalid-email') msg = 'Correo inválido.';
+      else if(err.code === 'auth/user-not-found') msg = 'No existe ese usuario.';
+      else if(err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') msg = 'Contraseña incorrecta.';
+      else if(err.code === 'auth/too-many-requests') msg = 'Demasiados intentos. Esperá un momento.';
+      $('login-error').textContent = msg;
+      $('login-error').classList.add('show');
+    })
+    .finally(() => {
+      $('login-btn').disabled = false;
+      $('login-btn').textContent = 'Ingresar';
+    });
+}
+function doLogout(){
+  if(!confirm('¿Cerrar sesión?')) return;
+  firebase.auth().signOut().then(() => location.reload());
+}
+// Login con Enter en cualquiera de los inputs
+document.addEventListener('keydown', e => {
+  if(e.key==='Enter' && $('view-login') && $('view-login').classList.contains('active')) doLogin();
+});
+
+// Esperamos a que Firebase resuelva si hay sesión guardada
+firebase.auth().onAuthStateChanged(async user => {
+  if (!user) {
+    userRole = null;
+    document.body.classList.remove('role-admin', 'role-repartidor');
+    showLoginScreen();
+    return;
+  }
+  // Hay sesión — leemos el rol
+  try {
+    const snap = await rtdb.ref('agua/roles/' + user.uid).once('value');
+    userRole = snap.val() || null;
+  } catch(e) {
+    console.error('No se pudo leer el rol:', e);
+    userRole = null;
+  }
+  if (!userRole) {
+    // Usuario autenticado pero sin rol → bloqueamos
+    $('login-error').textContent = 'Tu cuenta no tiene permisos. Contactá al administrador.';
+    $('login-error').classList.add('show');
+    await firebase.auth().signOut();
+    return;
+  }
+  // Aplicar clase de rol al body para CSS
+  document.body.classList.remove('role-admin', 'role-repartidor');
+  document.body.classList.add('role-' + userRole);
+  // Mostrar email del usuario en el header
+  $('user-chip').textContent = (user.email || '').split('@')[0];
+  // Forzar al repartidor a la pestaña de clientes si está en otra
+  if (userRole === 'repartidor' && currentView !== 'clientes') currentView = 'clientes';
+  hideLoginScreen();
+  // Suscribir al listener de la base solo una vez
+  if (!dbListenerAttached) {
+    dbListenerAttached = true;
+    attachDbListener();
+  }
+});
+
+function attachDbListener(){
+  // Listener en tiempo real — sincroniza entre todos los dispositivos
+  rtdb.ref('agua').on('value', snap => {
+  const data = snap.val() || {};
+  cache.clients      = toArray(data.clients);
+  cache.deliveries   = toArray(data.deliveries);
+  cache.payments     = toArray(data.payments);
+  cache.resets       = data.resets || {};
+  cache.stockBidones = data.stockBidones || 0;
+  cache.stockBaja    = data.stockBaja    || 0;
+  cache.truckLoads   = data.truckLoads    || {};
+  if (!fbReady) {
+    fbReady = true;
+    if (!data.seeded) {
+      // Primera vez: cargar los datos iniciales
+      rtdb.ref('agua').set({
+        clients: SEED_CLIENTS,
+        deliveries: SEED_DELIVERIES,
+        payments: [],
+        resets: {},
+        seeded: true
+      });
+      return;
+    }
+  }
+  // Migración one-shot a lógica $6.000/bidón
+  if (!data.migrated6000 && !_migrationDone && cache.clients.length) {
+    runMigration6000();
+    return; // el siguiente snapshot llega después del save, recién ahí rendereamos
+  }
+  // Recálculo one-shot: limpiar ajustes y cuotas viejas en clientes dispenser
+  if (data.migrated6000 && !data.recalculated6000_v2 && !_recalcDispDone && cache.clients.length) {
+    runRecalcDispenser6000();
+    return;
+  }
+  renderCurrentView();
+  });
+} // cierre de attachDbListener
+</script>
+</body>
+</html>
